@@ -35,11 +35,11 @@ demo: https://ipusiron.github.io/involution-studio/
 
 ---
 
-## 各タブ
-- インボリューションを知ろう
-- 換字式インボリューション（Atbash / ROT13 / ROT47）
-- 転置式インボリューション（文字反転 / ペア交換 / 行列転置）
-- ビット反転式インボリューション（Bitwise NOT / Feistel可視化の導入）
+## 📑 各タブ
+- インボリューション基礎
+- 換字式（Atbash / ROT13 / ROT47）
+- 転置式（文字反転 / ペア交換 / 行列転置）
+- ビット反転式（Bitwise NOT / Feistel可視化の導入）
 
 ---
 
