@@ -17,6 +17,9 @@ demo: https://ipusiron.github.io/involution-studio/
 ![GitHub license](https://img.shields.io/github/license/ipusiron/involution-studio)
 [![GitHub Pages](https://img.shields.io/badge/demo-GitHub%20Pages-blue?logo=github)](https://ipusiron.github.io/involution-studio/)
 
+
+**Day051 - 生成AIで作るセキュリティツール100**
+
 「2回適用で元に戻る」という処理である、インボリューション（"involution"）を「軽量デモ＋ビジュアル重視」で直感理解し、個別ツールに誘導するハブツールです。
 
 ## 🌐 デモページ
