@@ -1,2 +1,376 @@
-# 例の最小ファイル作成（中身は空でもOK）
-echo "<!DOCTYPE html><html><head><meta charset='utf-8'><title>Involution Studio</title></head><body><h1>Involution Studio (Hub)</h1><footer><div class='footer'>🔗 GitHubリポジトリはこちら（ <a href='https://github.com/ipusiron/involution-studio' target='_blank'>ipusiron/involution-studio</a> ）</div></footer></body></html>" > index.html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; media-src 'none'; frame-src 'none';">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Involution Studio</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Involution Studio</h1>
+    <p>インボリューション（2回適用で元に戻る変換）を、<strong>換字式／転置式／ビット反転式</strong>で軽量体験。<br>
+    「同じ操作で元に戻る」直感性を活かした学習ハブです。</p>
+  </header>
+
+  <main class="container">
+    <!-- Main Tabs -->
+    <nav class="tabs" role="tablist" aria-label="Involution Tabs">
+      <button class="theme-toggle" aria-label="テーマ切り替え" title="ライト/ダークモード切り替え">
+        <span class="theme-icon">🌙</span>
+      </button>
+      <button class="tab-btn" role="tab" aria-selected="true" aria-controls="panel-basics" id="tab-basics">インボリューション基礎</button>
+      <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-subst" id="tab-subst">換字式</button>
+      <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-trans" id="tab-trans">転置式</button>
+      <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-bits" id="tab-bits">ビット反転式</button>
+    </nav>
+
+    <!-- Panel: 基礎 -->
+    <section class="tabpanel active" role="tabpanel" id="panel-basics" aria-labelledby="tab-basics">
+      <span class="kicker">Overview</span>
+      <h2 style="margin:6px 0 8px;">インボリューションとは？</h2>
+      <p class="muted">
+        インボリューション（involution）とは、同じ操作を2回繰り返すと元に戻るという性質のことです。<br>
+        もっとも基本的な例は文字列の反転です。
+        「HELLO」→「OLLEH」→「HELLO」のように、2回適用で元の文字列に戻ります。<br>
+        文字列の反転、行列の転置、符号反転など、身近な例から暗号技術まで幅広く応用されています。
+      </p>
+
+      <div class="accordion" style="margin-top:14px;">
+        <article class="accordion-item">
+          <button class="accordion-header" aria-expanded="false">
+            <h3>数学的な例</h3>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-content">
+            <p>インボリューション（involution）は「同じ変換を2回適用すると恒等写像に戻る」性質です。<br>
+            数学的には <code>f(f(x)) = x</code> と表現されます。<br><br>
+            
+            行列の転置も同様で、Aの転置が Aᵀ 、（Aᵀ）ᵀ = A となります。<br>
+            数値では符号反転（マイナスを付ける）が典型例で、-(-x) = x となります。<br>
+            これらの例はすべて「同じ操作を2回繰り返すと元に戻る」というもっとも直感的な対称性を示しています。</p>
+          </div>
+        </article>
+
+        <article class="accordion-item">
+          <button class="accordion-header" aria-expanded="false">
+            <h3>暗号での活用</h3>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-content">
+            <p>暗号分野では、インボリューションは「暗号化と復号が同一の手順」であることを意味します。<br>
+            この性質により、設計コスト・検証コスト・回路面積の削減に大きく寄与します。<br><br>
+            
+            古典暗号の多くがこの性質を利用しています。<br>
+            AtbashはA↔Z, B↔Yのようにアルファベットを鏡写し対応させる手法で、2回適用で平文に戻ります。<br>
+            ROT13は26文字の半分（13文字）ずらし、ROT47は94文字の半分（47文字）ずらしで同様の効果を得ます。<br>
+            現代暗号ではFeistel構造が有名で、ラウンド関数を用いてブロック暗号を構成します。<br>
+            これらの手法はすべて同一のアルゴリズムで暗号化と復号を行えるため、ハードウェア実装で特に有効です。</p>
+          </div>
+        </article>
+
+        <article class="accordion-item">
+          <button class="accordion-header" aria-expanded="false">
+            <h3>AI／セキュリティとの関係</h3>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-content">
+            <p>インボリューションの性質はAIやセキュリティ分野でも重要な意味を持ちます。<br>
+            可逆性や対称性はシステムの理解可能性を高め、検証作業を容易にします。<br>
+            AIモデルの解釈性向上では、入力と出力の対応関係が明確な関数が有用です。<br>
+            セキュリティ監査では、対称性を持つアルゴリズムは、不正な操作やバックドアの発見がしやすくなります。</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Panel: 換字式 -->
+    <section class="tabpanel" role="tabpanel" id="panel-subst" aria-labelledby="tab-subst">
+      <span class="kicker">Substitution</span>
+      <h2 style="margin:6px 0 8px;">換字式インボリューション</h2>
+      <p class="muted">同じ置換を2回適用して元に戻るタイプ。ここでは軽量デモを案内し、詳細は各専用ツールへ。</p>
+
+      <div class="accordion">
+        <article class="accordion-item">
+          <button class="accordion-header" aria-expanded="false">
+            <h3>Atbash（アトバッシュ）</h3>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-content">
+            <p>アトバッシュはもっとも古い換字暗号の一つで、A↔Z, B↔Y のように文字を鏡写し対応させます。<br>
+            同じ変換を2回適用すると元の文字に戻る、典型的なインボリューション暗号です。</p>
+            
+            <div class="atbash-demo" style="margin: 16px 0; padding: 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px;">
+              <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">軽量デモ - テキストを入力:</label>
+              <input type="text" id="atbash-input" value="HELLO" placeholder="HELLO" maxlength="100" pattern="[A-Za-z\s]*" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); font-size: 14px; margin-bottom: 12px;">
+              <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <button onclick="transformAtbash()" style="padding: 8px 12px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">変換</button>
+                <button onclick="clearAtbash()" style="padding: 8px 12px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">クリア</button>
+              </div>
+              <div style="font-size: 13px; color: var(--muted); margin-bottom: 8px;">結果:</div>
+              <div id="atbash-result" style="padding: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; min-height: 20px; font-family: monospace; color: var(--text);"></div>
+              
+              <div style="margin-top: 16px; font-size: 12px;">
+                <div style="color: var(--muted); margin-bottom: 8px;">変換表 (使用された文字をハイライト):</div>
+                <div style="display: grid; grid-template-columns: repeat(13, 1fr); gap: 2px; margin-bottom: 4px;">
+                  <div id="map-A" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">A↔Z</div>
+                  <div id="map-B" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">B↔Y</div>
+                  <div id="map-C" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">C↔X</div>
+                  <div id="map-D" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">D↔W</div>
+                  <div id="map-E" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">E↔V</div>
+                  <div id="map-F" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">F↔U</div>
+                  <div id="map-G" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">G↔T</div>
+                  <div id="map-H" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">H↔S</div>
+                  <div id="map-I" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">I↔R</div>
+                  <div id="map-J" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">J↔Q</div>
+                  <div id="map-K" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">K↔P</div>
+                  <div id="map-L" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">L↔O</div>
+                  <div id="map-M" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">M↔N</div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(13, 1fr); gap: 2px;">
+                  <div id="map-N" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">N↔M</div>
+                  <div id="map-O" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">O↔L</div>
+                  <div id="map-P" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">P↔K</div>
+                  <div id="map-Q" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">Q↔J</div>
+                  <div id="map-R" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">R↔I</div>
+                  <div id="map-S" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">S↔H</div>
+                  <div id="map-T" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">T↔G</div>
+                  <div id="map-U" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">U↔F</div>
+                  <div id="map-V" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">V↔E</div>
+                  <div id="map-W" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">W↔D</div>
+                  <div id="map-X" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">X↔C</div>
+                  <div id="map-Y" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">Y↔B</div>
+                  <div id="map-Z" style="padding: 4px 2px; text-align: center; border: 1px solid var(--border); border-radius: 3px; font-family: monospace; font-size: 10px; background: var(--card);">Z↔A</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="accordion-item">
+          <button class="accordion-header" aria-expanded="false">
+            <h3>ROT13</h3>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-content">
+            <p>ROT13はA-Zの26文字を半分（13文字）だけシフトする置換暗号です。<br>
+            半分だけ回転するため2回適用すると元に戻るというインボリューション性を持ち、暗号化と復号が同一の操作で実行できます。</p>
+            <div class="actions">
+              <a class="btn primary" href="https://ipusiron.github.io/rot13-encoder/" target="_blank" rel="noopener noreferrer">🔗 ROT13 Encoder</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="accordion-item">
+          <button class="accordion-header" aria-expanded="false">
+            <h3>ROT47</h3>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-content">
+            <p>ROT47はROT13の拡張版で、数字・記号・英字を含むASCII文字（33〜126）の94文字を半分（47文字）だけシフトします。<br>
+            ROT13より幅広い文字種を扱えるため、より実用的なテキストの難読化が可能で、同様に2回適用で元に戻ります。</p>
+            <div class="actions">
+              <a class="btn primary" href="https://ipusiron.github.io/quick-rot47/" target="_blank" rel="noopener noreferrer">🔗 QuickROT47</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Panel: 転置式 -->
+    <section class="tabpanel" role="tabpanel" id="panel-trans" aria-labelledby="tab-trans">
+      <span class="kicker">Transposition</span>
+      <h2 style="margin:6px 0 8px;">転置式インボリューション</h2>
+      <p class="muted">並べ替え（転置）で2回適用することで元に戻るタイプ。文字列・カード・行列などで直感的に理解可能。</p>
+
+      <div class="accordion">
+        <article class="accordion-item">
+          <button class="accordion-header" aria-expanded="false">
+            <h3>文字反転</h3>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-content">
+            <p>文字列を逆順に並べ替えるもっとも基本的な転置操作です。<br>
+            "HELLO" → "OLLEH" → "HELLO"のように、2回適用で元に戻る特性を持ちます。</p>
+            
+            <div class="string-reverse-demo" style="margin: 16px 0; padding: 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px;">
+              <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">軽量デモ - 文字列を入力:</label>
+              <input type="text" id="reverse-input" value="HELLO" placeholder="HELLO" maxlength="100" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); font-size: 14px; margin-bottom: 12px;">
+              <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <button onclick="reverseString()" style="padding: 8px 12px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">反転</button>
+                <button onclick="clearReverse()" style="padding: 8px 12px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">クリア</button>
+              </div>
+              <div style="font-size: 13px; color: var(--muted); margin-bottom: 8px;">結果:</div>
+              <div id="reverse-result" style="padding: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; min-height: 20px; font-family: monospace; color: var(--text);"></div>
+              <div id="reverse-steps" style="margin-top: 12px; font-size: 12px; color: var(--muted);"></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="accordion-item">
+          <button class="accordion-header" aria-expanded="false">
+            <h3>ペア交換／Perfect Shuffle</h3>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-content">
+            <p>隣接する文字のペアを交換する操作です。<br>
+            "ABCD" → "BADC" → "ABCD"のように、2回適用で元の順序に戻ります。</p>
+            
+            <div class="pair-swap-demo" style="margin: 16px 0; padding: 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px;">
+              <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">軽量デモ - 文字列を入力 (偶数文字推奨):</label>
+              <input type="text" id="pair-input" value="ABCD" placeholder="ABCD" maxlength="100" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); font-size: 14px; margin-bottom: 12px;">
+              <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <button onclick="swapPairs()" style="padding: 8px 12px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">ペア交換</button>
+                <button onclick="clearPairs()" style="padding: 8px 12px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">クリア</button>
+              </div>
+              <div style="font-size: 13px; color: var(--muted); margin-bottom: 8px;">結果:</div>
+              <div id="pair-result" style="padding: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; min-height: 20px; font-family: monospace; color: var(--text);"></div>
+              <div id="pair-visualization" style="margin-top: 12px; font-size: 12px;"></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="accordion-item">
+          <button class="accordion-header" aria-expanded="false">
+            <h3>転置行列</h3>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-content">
+            <p>行列の行と列を入れ替える操作です。3×3行列では、転置を2回適用すると元の行列に戻ります。<br>
+            暗号学では、鍵を使わない完全縦列転置式暗号において、正方形に配置した平文に対してこのインボリューション性質を利用できます。</p>
+            
+            <div class="matrix-transpose-demo" style="margin: 16px 0; padding: 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px;">
+              <div style="margin-bottom: 12px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">軽量デモ - 3×3行列:</label>
+                <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                  <button onclick="transposeMatrix()" style="padding: 8px 12px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">転置</button>
+                  <button onclick="resetMatrix()" style="padding: 8px 12px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">リセット</button>
+                </div>
+              </div>
+              <div id="matrix-display" style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap;"></div>
+              <div id="matrix-steps" style="margin-top: 12px; font-size: 12px; color: var(--muted); text-align: center;"></div>
+            </div>
+            
+            <div style="margin-top: 16px; padding: 12px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; font-size: 13px;">
+              <div style="font-weight: 600; margin-bottom: 8px; color: var(--text);">💡 実際の暗号ツールで試す</div>
+              <p style="margin: 0 0 8px; color: var(--muted);">縦列転置式暗号でインボリューション性を体験するには：<br>
+              「鍵なし＋正方形を満たす平文（足りなければ埋字で調整）」に設定してください。</p>
+              <div class="actions">
+                <a class="btn primary" href="https://ipusiron.github.io/columnar-cipherlab/" target="_blank" rel="noopener noreferrer">🔗 Columnar CipherLab</a>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Panel: ビット反転式 -->
+    <section class="tabpanel" role="tabpanel" id="panel-bits" aria-labelledby="tab-bits">
+      <span class="kicker">Bitwise</span>
+      <h2 style="margin:6px 0 8px;">ビット反転式インボリューション</h2>
+      <p class="muted">ビット単位の変換で「2回適用で元に戻る」を体験。Feistel は“同一回路で復号可能”という設計思想を紹介。</p>
+
+      <div class="accordion">
+        <article class="accordion-item">
+          <button class="accordion-header" aria-expanded="false">
+            <h3>Bitwise NOT（ビット反転）</h3>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-content">
+            <p>ビット反転（NOT演算）は、0を1に、1を0に変換するもっとも基本的なビット操作です。<br>
+            2回連続で適用すると元のビットパターンに戻る、典型的なインボリューション演算です。</p>
+            
+            <div class="bitwise-demo" style="margin: 16px 0; padding: 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px;">
+              <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">軽量デモ - 文字またはバイト値を入力:</label>
+              <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <input type="text" id="bitwise-input" value="A" placeholder="A" maxlength="10" style="flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); font-size: 14px;">
+                <select id="input-mode" style="padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); font-size: 14px;">
+                  <option value="char">文字</option>
+                  <option value="byte">バイト値</option>
+                </select>
+              </div>
+              <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <button onclick="flipBits()" style="padding: 8px 12px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">ビット反転</button>
+                <button onclick="clearBitwise()" style="padding: 8px 12px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">クリア</button>
+              </div>
+              
+              <div id="bitwise-display" style="margin-bottom: 12px;"></div>
+              
+              <div style="font-size: 13px; color: var(--muted); margin-bottom: 8px;">結果:</div>
+              <div id="bitwise-result" style="padding: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; min-height: 20px; font-family: monospace; color: var(--text);"></div>
+              <div id="bitwise-explanation" style="margin-top: 12px; font-size: 12px; color: var(--muted);"></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="accordion-item">
+          <button class="accordion-header" aria-expanded="false">
+            <h3>Feistel構造</h3>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-content">
+            <p><strong>Feistel構造とは？</strong><br>
+Feistel構造は、暗号化のための巧妙な仕組みです。データを左右2つの部分に分けて、特別な計算を行います。<br>
+驚くことに、<strong>まったく同じ手順を繰り返すだけで、暗号化も復号も両方できる</strong>のです！<br>
+これがインボリューション（同じ操作を2回行うと元に戻る性質）の美しい例です。</p>
+            
+            <div class="feistel-demo" style="margin: 16px 0; padding: 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px;">
+              <div style="margin-bottom: 16px; padding: 12px; background: var(--card); border-radius: 8px; border-left: 4px solid var(--accent);">
+                <div style="font-weight: 600; color: var(--text); margin-bottom: 4px;">📖 使い方</div>
+                <div style="font-size: 12px; color: var(--muted); line-height: 1.4;">
+                  1️⃣ 入力値（8ビット = 0-255の数値）を設定して左右ブロックに分割<br>
+                  2️⃣ キー値（4ビット = 0-15の数値）でラウンド関数を制御<br>
+                  3️⃣ 「次のラウンド」を4回押すと、魔法のように元の値に戻る！<br>
+                  4️⃣ 同じ処理が暗号化と復号の両方になることを体感
+                </div>
+              </div>
+              
+              <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 16px;">
+                <div>
+                  <label style="display: block; margin-bottom: 4px; font-weight: 600; color: var(--text); font-size: 13px;">入力値（8ビット = 0-255の10進数）</label>
+                  <input type="number" id="feistel-input" value="170" min="0" max="255" placeholder="170" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); font-size: 14px;" oninput="validateAndUpdateFeistel()">
+                  <div id="feistel-input-error" style="font-size: 11px; color: #dc3545; margin-top: 4px; display: none;"></div>
+                  <div style="font-size: 11px; color: var(--muted); margin-top: 2px;">この8ビット値が左4ビット・右4ビットに分かれます</div>
+                </div>
+                <div>
+                  <label style="display: block; margin-bottom: 4px; font-weight: 600; color: var(--text); font-size: 13px;">キー（4ビット = 0-15の10進数）</label>
+                  <input type="number" id="feistel-key" value="5" min="0" max="15" placeholder="5" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); font-size: 14px;" oninput="validateAndUpdateFeistel()">
+                  <div id="feistel-key-error" style="font-size: 11px; color: #dc3545; margin-top: 4px; display: none;"></div>
+                  <div style="font-size: 11px; color: var(--muted); margin-top: 2px;">ラウンド関数の計算に使用されます</div>
+                </div>
+              </div>
+              
+              <div id="feistel-progress" style="margin-bottom: 16px; padding: 10px; background: var(--card); border-radius: 8px; text-align: center; font-size: 13px;"></div>
+              
+              <div style="display: flex; gap: 8px; margin-bottom: 16px; justify-content: center;">
+                <button onclick="feistelRound()" id="feistel-next-btn" style="padding: 10px 20px; background: var(--accent); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">🔄 次のラウンド (1/4)</button>
+                <button onclick="resetFeistel()" style="padding: 10px 16px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 600;">🔄 リセット</button>
+              </div>
+              
+              <div id="feistel-display" style="margin-bottom: 16px;"></div>
+              
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 13px; color: var(--muted);">現在の値:</span>
+                <span id="feistel-comparison" style="font-size: 12px; color: var(--muted);"></span>
+              </div>
+              <div id="feistel-result" style="padding: 12px; background: var(--card); border: 2px solid var(--border); border-radius: 8px; text-align: center; font-family: monospace; color: var(--text); font-size: 16px; font-weight: bold;"></div>
+              
+              <div id="feistel-status" style="margin-top: 16px; padding: 12px; border-radius: 8px; font-size: 13px; text-align: center; font-weight: 600;"></div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <footer>
+      <div class="footer">
+        🔗 GitHubリポジトリはこちら（ <a href="https://github.com/ipusiron/involution-studio" target="_blank" rel="noopener noreferrer">ipusiron/involution-studio</a> ）
+      </div>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
