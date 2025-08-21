@@ -155,8 +155,3 @@ MIT License - 詳細は [LICENSE](LICENSE) をご覧ください。
 
 🔗 [https://akademeia.info/?page_id=42163](https://akademeia.info/?page_id=42163)
 
-**技術的な特徴**:
-- 純粋HTML/CSS/JS（ビルドプロセスなし）
-- GitHub Pages対応
-- セキュリティベストプラクティス準拠
-- アクセシビリティ考慮（ARIAラベル等）
