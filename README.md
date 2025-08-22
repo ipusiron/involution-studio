@@ -56,9 +56,9 @@ demo: https://ipusiron.github.io/involution-studio/
 | | ROT13/ROT47の概念紹介 | [QuickROT47](https://ipusiron.github.io/quick-rot47/) |
 | **転置式** | 文字列反転の手順可視化 | *(準備中)* |
 | | ペア交換の仕組み説明 | *(準備中)* |
-| | 3×3行列転置のビジュアル表示 | *(準備中)* |
+| | 3×3行列転置のビジュアル表示 | [Columnar CipherLab](https://ipusiron.github.io/columnar-cipherlab/) |
 | **ビット反転式** | 8ビットNOT演算の二進表示 | *(準備中)* |
-| | Feistel構造の4ラウンド体験 | [Columnar CipherLab](https://ipusiron.github.io/columnar-cipherlab/) |
+| | Feistel構造の4ラウンド体験 | *(準備中)* |
 
 ---
 
