@@ -275,10 +275,75 @@ function resetMatrix() {
   displayMatrix();
 }
 
-// Initialize matrix display when page loads
+// Initialize demos and attach event listeners when page loads
 document.addEventListener('DOMContentLoaded', function() {
+  // Matrix display initialization
   if (document.getElementById('matrix-display')) {
     displayMatrix();
+  }
+
+  // Atbash event listeners
+  const atbashTransformBtn = document.getElementById('atbash-transform-btn');
+  const atbashClearBtn = document.getElementById('atbash-clear-btn');
+  if (atbashTransformBtn) atbashTransformBtn.addEventListener('click', transformAtbash);
+  if (atbashClearBtn) atbashClearBtn.addEventListener('click', clearAtbash);
+
+  // String reverse event listeners
+  const reverseTransformBtn = document.getElementById('reverse-transform-btn');
+  const reverseClearBtn = document.getElementById('reverse-clear-btn');
+  if (reverseTransformBtn) reverseTransformBtn.addEventListener('click', reverseString);
+  if (reverseClearBtn) reverseClearBtn.addEventListener('click', clearReverse);
+
+  // Pair swap event listeners
+  const pairTransformBtn = document.getElementById('pair-transform-btn');
+  const pairClearBtn = document.getElementById('pair-clear-btn');
+  if (pairTransformBtn) pairTransformBtn.addEventListener('click', swapPairs);
+  if (pairClearBtn) pairClearBtn.addEventListener('click', clearPairs);
+
+  // Matrix transpose event listeners
+  const matrixTransposeBtn = document.getElementById('matrix-transpose-btn');
+  const matrixResetBtn = document.getElementById('matrix-reset-btn');
+  if (matrixTransposeBtn) matrixTransposeBtn.addEventListener('click', transposeMatrix);
+  if (matrixResetBtn) matrixResetBtn.addEventListener('click', resetMatrix);
+
+  // Bitwise event listeners
+  const bitwiseTransformBtn = document.getElementById('bitwise-transform-btn');
+  const bitwiseClearBtn = document.getElementById('bitwise-clear-btn');
+  if (bitwiseTransformBtn) bitwiseTransformBtn.addEventListener('click', flipBits);
+  if (bitwiseClearBtn) bitwiseClearBtn.addEventListener('click', clearBitwise);
+
+  // Feistel event listeners
+  const feistelNextBtn = document.getElementById('feistel-next-btn');
+  const feistelResetBtn = document.getElementById('feistel-reset-btn');
+  if (feistelNextBtn) feistelNextBtn.addEventListener('click', feistelRound);
+  if (feistelResetBtn) feistelResetBtn.addEventListener('click', resetFeistel);
+
+  // Bitwise input mode change handler
+  const inputMode = document.getElementById('input-mode');
+  const bitwiseInput = document.getElementById('bitwise-input');
+  if (inputMode && bitwiseInput) {
+    inputMode.addEventListener('change', function() {
+      if (this.value === 'char') {
+        bitwiseInput.value = 'A';
+        bitwiseInput.placeholder = 'A';
+      } else {
+        bitwiseInput.value = '65';
+        bitwiseInput.placeholder = '65';
+      }
+    });
+  }
+
+  // Initialize Feistel demo
+  if (document.getElementById('feistel-display')) {
+    resetFeistel();
+
+    // Add real-time input validation
+    const feistelInput = document.getElementById('feistel-input');
+    const feistelKey = document.getElementById('feistel-key');
+    if (feistelInput && feistelKey) {
+      feistelInput.addEventListener('input', validateAndUpdateFeistel);
+      feistelKey.addEventListener('input', validateAndUpdateFeistel);
+    }
   }
 });
 
@@ -356,36 +421,6 @@ function clearBitwise() {
   document.getElementById('bitwise-explanation').innerHTML = '';
 }
 
-// Update demo when input mode changes
-document.addEventListener('DOMContentLoaded', function() {
-  const inputMode = document.getElementById('input-mode');
-  const bitwiseInput = document.getElementById('bitwise-input');
-  
-  if (inputMode && bitwiseInput) {
-    inputMode.addEventListener('change', function() {
-      if (this.value === 'char') {
-        bitwiseInput.value = 'A';
-        bitwiseInput.placeholder = 'A';
-      } else {
-        bitwiseInput.value = '65';
-        bitwiseInput.placeholder = '65';
-      }
-    });
-  }
-  
-  // Initialize Feistel demo
-  if (document.getElementById('feistel-display')) {
-    resetFeistel();
-    
-    // Add real-time input validation
-    const feistelInput = document.getElementById('feistel-input');
-    const feistelKey = document.getElementById('feistel-key');
-    if (feistelInput && feistelKey) {
-      feistelInput.addEventListener('input', validateAndUpdateFeistel);
-      feistelKey.addEventListener('input', validateAndUpdateFeistel);
-    }
-  }
-});
 
 // Feistel cipher demo
 let feistelState = {

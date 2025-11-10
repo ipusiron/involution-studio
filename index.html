@@ -106,8 +106,8 @@
               <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">軽量デモ - テキストを入力:</label>
               <input type="text" id="atbash-input" value="HELLO" placeholder="HELLO" maxlength="100" pattern="[A-Za-z\s]*" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); font-size: 14px; margin-bottom: 12px;">
               <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                <button onclick="transformAtbash()" style="padding: 8px 12px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">変換</button>
-                <button onclick="clearAtbash()" style="padding: 8px 12px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">クリア</button>
+                <button id="atbash-transform-btn" style="padding: 8px 12px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">変換</button>
+                <button id="atbash-clear-btn" style="padding: 8px 12px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">クリア</button>
               </div>
               <div style="font-size: 13px; color: var(--muted); margin-bottom: 8px;">結果:</div>
               <div id="atbash-result" style="padding: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; min-height: 20px; font-family: monospace; color: var(--text);"></div>
@@ -199,8 +199,8 @@
               <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">軽量デモ - 文字列を入力:</label>
               <input type="text" id="reverse-input" value="HELLO" placeholder="HELLO" maxlength="100" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); font-size: 14px; margin-bottom: 12px;">
               <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                <button onclick="reverseString()" style="padding: 8px 12px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">反転</button>
-                <button onclick="clearReverse()" style="padding: 8px 12px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">クリア</button>
+                <button id="reverse-transform-btn" style="padding: 8px 12px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">反転</button>
+                <button id="reverse-clear-btn" style="padding: 8px 12px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">クリア</button>
               </div>
               <div style="font-size: 13px; color: var(--muted); margin-bottom: 8px;">結果:</div>
               <div id="reverse-result" style="padding: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; min-height: 20px; font-family: monospace; color: var(--text);"></div>
@@ -222,8 +222,8 @@
               <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">軽量デモ - 文字列を入力 (偶数文字推奨):</label>
               <input type="text" id="pair-input" value="ABCD" placeholder="ABCD" maxlength="100" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); font-size: 14px; margin-bottom: 12px;">
               <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                <button onclick="swapPairs()" style="padding: 8px 12px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">ペア交換</button>
-                <button onclick="clearPairs()" style="padding: 8px 12px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">クリア</button>
+                <button id="pair-transform-btn" style="padding: 8px 12px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">ペア交換</button>
+                <button id="pair-clear-btn" style="padding: 8px 12px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">クリア</button>
               </div>
               <div style="font-size: 13px; color: var(--muted); margin-bottom: 8px;">結果:</div>
               <div id="pair-result" style="padding: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; min-height: 20px; font-family: monospace; color: var(--text);"></div>
@@ -245,8 +245,8 @@
               <div style="margin-bottom: 12px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">軽量デモ - 3×3行列:</label>
                 <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                  <button onclick="transposeMatrix()" style="padding: 8px 12px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">転置</button>
-                  <button onclick="resetMatrix()" style="padding: 8px 12px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">リセット</button>
+                  <button id="matrix-transpose-btn" style="padding: 8px 12px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">転置</button>
+                  <button id="matrix-reset-btn" style="padding: 8px 12px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">リセット</button>
                 </div>
               </div>
               <div id="matrix-display" style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap;"></div>
@@ -292,8 +292,8 @@
                 </select>
               </div>
               <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                <button onclick="flipBits()" style="padding: 8px 12px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">ビット反転</button>
-                <button onclick="clearBitwise()" style="padding: 8px 12px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">クリア</button>
+                <button id="bitwise-transform-btn" style="padding: 8px 12px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">ビット反転</button>
+                <button id="bitwise-clear-btn" style="padding: 8px 12px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">クリア</button>
               </div>
               
               <div id="bitwise-display" style="margin-bottom: 12px;"></div>
@@ -330,13 +330,13 @@ Feistel構造は、暗号化のための巧妙な仕組みです。データを�
               <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 16px;">
                 <div>
                   <label style="display: block; margin-bottom: 4px; font-weight: 600; color: var(--text); font-size: 13px;">入力値（8ビット = 0-255の10進数）</label>
-                  <input type="number" id="feistel-input" value="170" min="0" max="255" placeholder="170" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); font-size: 14px;" oninput="validateAndUpdateFeistel()">
+                  <input type="number" id="feistel-input" value="170" min="0" max="255" placeholder="170" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); font-size: 14px;">
                   <div id="feistel-input-error" style="font-size: 11px; color: #dc3545; margin-top: 4px; display: none;"></div>
                   <div style="font-size: 11px; color: var(--muted); margin-top: 2px;">この8ビット値が左4ビット・右4ビットに分かれます</div>
                 </div>
                 <div>
                   <label style="display: block; margin-bottom: 4px; font-weight: 600; color: var(--text); font-size: 13px;">キー（4ビット = 0-15の10進数）</label>
-                  <input type="number" id="feistel-key" value="5" min="0" max="15" placeholder="5" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); font-size: 14px;" oninput="validateAndUpdateFeistel()">
+                  <input type="number" id="feistel-key" value="5" min="0" max="15" placeholder="5" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); font-size: 14px;">
                   <div id="feistel-key-error" style="font-size: 11px; color: #dc3545; margin-top: 4px; display: none;"></div>
                   <div style="font-size: 11px; color: var(--muted); margin-top: 2px;">ラウンド関数の計算に使用されます</div>
                 </div>
@@ -345,8 +345,8 @@ Feistel構造は、暗号化のための巧妙な仕組みです。データを�
               <div id="feistel-progress" style="margin-bottom: 16px; padding: 10px; background: var(--card); border-radius: 8px; text-align: center; font-size: 13px;"></div>
               
               <div style="display: flex; gap: 8px; margin-bottom: 16px; justify-content: center;">
-                <button onclick="feistelRound()" id="feistel-next-btn" style="padding: 10px 20px; background: var(--accent); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">🔄 次のラウンド (1/4)</button>
-                <button onclick="resetFeistel()" style="padding: 10px 16px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 600;">🔄 リセット</button>
+                <button id="feistel-next-btn" style="padding: 10px 20px; background: var(--accent); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">🔄 次のラウンド (1/4)</button>
+                <button id="feistel-reset-btn" style="padding: 10px 16px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 600;">🔄 リセット</button>
               </div>
               
               <div id="feistel-display" style="margin-bottom: 16px;"></div>
