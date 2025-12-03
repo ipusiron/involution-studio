@@ -1,11 +1,38 @@
 <!--
 ---
-title: Involution Studio
-category: classical-cryptography
-difficulty: 1
-description: Lightweight hub to explore "apply twice to get back" transforms with visual mini-demos and links to dedicated tools.
-tags: [involution, cryptography, education, visualization]
-demo: https://ipusiron.github.io/involution-studio/
+id: day051
+slug: involution-studio
+
+title: "Involution Studio"
+
+subtitle_ja: "インボリューション総合体験ハブツール"
+subtitle_en: "Comprehensive Involution Experience Hub"
+
+description_ja: "「2回適用で元に戻る」インボリューション変換を、換字式・転置式・ビット反転式の軽量デモで直感的に理解し、専用ツールへ誘導するハブ"
+description_en: "A lightweight hub for exploring involution transforms (f(f(x)) = x) through visual mini-demos covering substitution, transposition, and bitwise operations"
+
+category_ja:
+  - 古典暗号
+  - 現代暗号
+category_en:
+  - Classical Cryptography
+  - Modern Cryptography
+
+difficulty: 2
+
+tags:
+  - involution
+  - cryptography
+  - education
+  - visualization
+  - atbash
+  - rot13
+  - feistel
+
+repo_url: "https://github.com/ipusiron/involution-studio"
+demo_url: "https://ipusiron.github.io/involution-studio/"
+
+hub: true
 ---
 -->
 

@@ -4,98 +4,64 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Involution Studio is a lightweight educational hub for exploring involution transforms - cryptographic operations that return to the original state when applied twice (f(f(x)) = x). The project demonstrates various involution types through visual mini-demos and provides links to dedicated tools.
+Involution Studio is a lightweight educational hub for exploring involution transforms - cryptographic operations that return to the original state when applied twice (f(f(x)) = x). Part of the "生成AIで作るセキュリティツール100" (100 Security Tools Created with Generative AI) project.
 
-## Key Architecture
-
-- **Single-page HTML application** (index.html) with embedded CSS and vanilla JavaScript
-- **No build process or dependencies** - pure HTML/CSS/JS for simplicity
-- **Tab-based interface** with four main sections:
-  - インボリューション基礎 (Involution Basics)
-  - 換字式 (Substitution type)
-  - 転置式 (Transposition type) 
-  - ビット反転式 (Bitwise type)
-- **Japanese-first content** with technical terminology in both Japanese and English
+**Live demo**: https://ipusiron.github.io/involution-studio/
 
 ## Development Commands
 
 This is a static site with no build process:
 
 ```bash
-# Serve locally (any static server will work)
+# Serve locally (any static server)
 python -m http.server 8000
 # or
 npx serve .
-
-# Deploy to GitHub Pages
-# The site is deployed to: https://ipusiron.github.io/involution-studio/
 ```
 
-## Important Context
+## Code Architecture
 
-- This is part of the "生成AIで作るセキュリティツール100" (100 Security Tools Created with Generative AI) project
-- The repository serves as a **hub** - heavy implementations should link to dedicated tool repositories
-- Links to existing tools include:
-  - ROT13 Encoder: https://ipusiron.github.io/rot13-encoder/
-  - QuickROT47: https://ipusiron.github.io/quick-rot47/
-  - Columnar CipherLab: https://ipusiron.github.io/columnar-cipherlab/
-- All basic lightweight demos have been implemented and are functional
+### File Structure
+- **index.html** - Main HTML with 4 tab panels (基礎/換字式/転置式/ビット反転式), accordion UI, and inline demo markup
+- **script.js** - All demo logic, event handlers, theme toggle, and state management
+- **styles.css** - CSS variables for dark/light themes, responsive layout, accordion/tab styling
 
-## Current Implementation Status
+### Key Patterns
 
-### Completed Features
-- **Accordion-based UI** with tab switching between 4 main sections
-- **Dark/Light mode toggle** with localStorage persistence
-- **Security hardening** (CSP, input sanitization, external link protection)
-- **Lightweight demos implemented**:
-  - Atbash cipher with character mapping visualization and real-time highlighting
-  - String reversal with step-by-step explanation
-  - Pair swapping with visual process display
-  - 3x3 Matrix transpose with visual representation
-  - Bitwise NOT with binary visualization (char/byte modes)
-  - Feistel structure with 4-round demonstration, progress tracking, and detailed UI
+**Tab System**: Uses `aria-controls` to link buttons to panels. `activateTab(id)` toggles the `active` class.
 
-### Security Features
-- Content Security Policy (CSP) implementation
-- Input sanitization for XSS prevention
-- External links with `rel="noopener noreferrer"`
-- Maxlength restrictions on input fields
-- Pattern validation for specific input types
+**Accordion**: Each `.accordion-item` has a header button with `aria-expanded` that toggles `.accordion-content.active`.
 
-## Future Enhancement Ideas
+**Demo State**: Each demo maintains local state (e.g., `currentMatrix`, `feistelState`) and updates DOM via dedicated display functions.
 
-The basic implementation is complete. The following are potential improvement areas for future development:
+**Input Sanitization**: All user inputs are sanitized via:
+- `sanitizeText()` for HTML encoding
+- Regex patterns to strip dangerous characters (`/[<>"'&]/g`)
+- `maxlength` and `pattern` attributes on inputs
 
-### 🎨 UI/UX Enhancements
-- **Display Format Consistency**: Standardize progress indicators across all demos (currently only Feistel has detailed progress bars)
-- **Visual Feedback Enhancement**: Add animation effects to visualize transformation processes
-- **Mobile Optimization**: Improve matrix display and Feistel block visualization on mobile devices
-- **Touch Interaction**: Optimize button sizes and interactions for mobile devices
+### Demo Implementations (script.js)
 
-### ⚙️ Functional Improvements  
-- **Demo Interconnection**: Enable data transfer between demos, standardize 8-bit representation across all demos
-- **Enhanced Input Guidance**: More detailed real-time input requirements and validation feedback
-- **Progressive Learning Support**: Add beginner/intermediate/advanced mode switching with contextual hints
+| Demo | Functions | State |
+|------|-----------|-------|
+| Atbash | `transformAtbash()`, `clearAtbash()` | Stateless |
+| String Reverse | `reverseString()`, `clearReverse()` | Stateless |
+| Pair Swap | `swapPairs()`, `clearPairs()` | Stateless |
+| Matrix Transpose | `transposeMatrix()`, `displayMatrix()`, `resetMatrix()` | `currentMatrix`, `transposeCount` |
+| Bitwise NOT | `flipBits()`, `clearBitwise()` | Stateless |
+| Feistel | `feistelRound()`, `displayFeistelState()`, `resetFeistel()` | `feistelState` object |
 
-### 🔧 Technical Improvements
-- **Performance Optimization**: Implement debouncing for real-time updates, optimize large dataset processing
-- **Error Handling**: More detailed error messages with suggested solutions and auto-correction
-- **Accessibility Enhancement**: Complete keyboard-only navigation, improved screen reader support, color-blind friendly design
+## Hub Architecture
 
-### 📚 Educational Value Enhancement
-- **Mathematical Context**: Add group theory explanations and real-world application examples  
-- **Learning Path Guidance**: Provide recommended learning sequences and comprehension checks
-- **External Resource Integration**: Link to related mathematics/cryptography learning resources
+This repo serves as a **hub** linking to dedicated tools for deeper exploration:
+- ROT13 Encoder: https://ipusiron.github.io/rot13-encoder/
+- QuickROT47: https://ipusiron.github.io/quick-rot47/
+- Columnar CipherLab: https://ipusiron.github.io/columnar-cipherlab/
 
-### 🛡️ Code Quality & Maintenance
-- **TypeScript Migration**: Consider TypeScript for better type safety
-- **Testing Framework**: Add unit tests for demo logic
-- **Documentation**: Comprehensive code documentation and API references
-- **Internationalization**: English interface and multi-language support foundation
+Keep this repository lightweight. Heavy implementations belong in separate tool repositories.
 
-### Priority Recommendations
-1. **UI Consistency**: Extend Feistel-level detailed progress display to other demos
-2. **Visual Process Animation**: Make the "apply twice to return" concept more intuitive
-3. **Mobile Experience**: Optimize responsive design for complex visualizations
+## Security Considerations
 
-These enhancements would significantly improve educational effectiveness while maintaining the lightweight, hub-focused nature of the tool.
+- CSP in `<meta>` tag restricts `script-src 'self'` and `connect-src 'none'`
+- No inline event handlers (all via `addEventListener` in script.js)
+- External links use `rel="noopener noreferrer"`
+- Input validation with maxlength, pattern attributes, and runtime sanitization
