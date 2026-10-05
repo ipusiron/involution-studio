@@ -376,6 +376,110 @@
   const mulMod = (X, Y, m) => X.map((row) => Y[0].map((_, j) => row.reduce((s, v, k) => s + v * Y[k][j], 0) % m));
   const det2 = (X, m) => (((X[0][0] * X[1][1] - X[0][1] * X[1][0]) % m) + m) % m;
 
+  // ===== 共役（エニグマが2回で戻る理由） =====
+  const invertMap = (m) => {
+    const inv = [];
+    m.forEach((v, i) => {
+      inv[v] = i;
+    });
+    return inv;
+  };
+
+  // g を通り、h で折り返し、g を逆向きに戻る: c → g⁻¹(h(g(c)))。h が対合なら、どの g でも対合になる
+  function conjugate(g, h) {
+    const gi = invertMap(g);
+    return g.map((_, c) => gi[h[g[c]]]);
+  }
+
+  // g のあとに h（g⁻¹ で戻らない）: c → h(g(c))
+  const composeMaps = (g, h) => g.map((_, c) => h[g[c]]);
+
+  // ===== パーフェクトシャッフルの巡回と位数 =====
+  // n 枚（偶数）の位置の置換。dest[i] は上から i 番目（0始まり）の札が移る位置
+  function shufflePositions(n, out) {
+    const h = n / 2;
+    const dest = new Array(n);
+    for (let i = 0; i < h; i++) {
+      dest[i] = out ? 2 * i : 2 * i + 1;
+      dest[h + i] = out ? 2 * i + 1 : 2 * i;
+    }
+    return dest;
+  }
+
+  // 置換を巡回（位置の並び、0始まり）に分ける
+  function cyclesOf(dest) {
+    const seen = new Array(dest.length).fill(false);
+    const cycles = [];
+    for (let i = 0; i < dest.length; i++) {
+      if (seen[i]) continue;
+      const cycle = [];
+      for (let j = i; !seen[j]; j = dest[j]) {
+        seen[j] = true;
+        cycle.push(j);
+      }
+      cycles.push(cycle);
+    }
+    return cycles;
+  }
+
+  // 2 の法 m での位数（2^k ≡ 1 (mod m) となる最小の k）。m は奇数
+  function orderOfTwo(m) {
+    if (m === 1) return 1;
+    let x = 2 % m;
+    let k = 1;
+    while (x !== 1) {
+      x = (x * 2) % m;
+      k++;
+    }
+    return k;
+  }
+
+  // n 枚（偶数）のシャッフルの位数。アウトは 2 の法 (n−1) での位数、インは法 (n+1)（Diaconis・Graham・Kantor の Lemma 1）
+  const shuffleOrder = (n, out) => orderOfTwo(out ? n - 1 : n + 1);
+
+  // ===== 自己逆の Hill 行列（2×2、mod 26） =====
+  let hillCache = null;
+
+  // 可逆な2×2行列の数と、そのうち A² ≡ I のもの（26⁴ 通りを全部調べる。結果は覚えておく）
+  function hill2Census() {
+    if (!hillCache) {
+      let invertible = 0;
+      const involutory = [];
+      for (let a = 0; a < 26; a++) {
+        for (let b = 0; b < 26; b++) {
+          for (let c = 0; c < 26; c++) {
+            for (let d = 0; d < 26; d++) {
+              if (gcd(det2([[a, b], [c, d]], 26), 26) !== 1) continue;
+              invertible++;
+              const sq = mulMod([[a, b], [c, d]], [[a, b], [c, d]], 26);
+              if (sq[0][0] === 1 && sq[0][1] === 0 && sq[1][0] === 0 && sq[1][1] === 1) involutory.push([[a, b], [c, d]]);
+            }
+          }
+        }
+      }
+      hillCache = { invertible, involutory };
+    }
+    return hillCache;
+  }
+
+  // 英字だけを大文字にして並べる（奇数個なら X を足す）
+  function hillNormalize(text) {
+    const letters = codePoints(String(text).toUpperCase()).filter((ch) => ch >= 'A' && ch <= 'Z');
+    const padded = letters.length % 2 === 1;
+    if (padded) letters.push('X');
+    return { text: letters.join(''), padded };
+  }
+
+  // 2文字ずつ縦ベクトルにして A を掛ける
+  function hillApply(A, text) {
+    const v = toMap(hillNormalize(text).text);
+    let out = '';
+    for (let i = 0; i < v.length; i += 2) {
+      out += ALPHABET[(A[0][0] * v[i] + A[0][1] * v[i + 1]) % 26] + ALPHABET[(A[1][0] * v[i] + A[1][1] * v[i + 1]) % 26];
+    }
+    return out;
+  }
+
   globalThis.InvolutionCore = {
     codePoints,
     atbash,
@@ -423,6 +527,16 @@
     twoTimePad,
     HILL_INVOLUTORY,
     mulMod,
-    det2
+    det2,
+    invertMap,
+    conjugate,
+    composeMaps,
+    shufflePositions,
+    cyclesOf,
+    orderOfTwo,
+    shuffleOrder,
+    hill2Census,
+    hillNormalize,
+    hillApply
   };
 })();

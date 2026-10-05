@@ -377,6 +377,23 @@ fieldset.keys {
 
 .wrap { overflow-wrap: anywhere; }
 
+.order-table { margin-top: 12px; }
+
+.order-table summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--accent-text);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.order-table .table-wrap { max-height: 320px; overflow-y: auto; }
+
+.order-table .note { margin-top: 10px; }
+
+#order-cycles { margin-top: 10px; }
+
 .detail + .field-label {
   margin-top: 16px;
   padding-top: 12px;

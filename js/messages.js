@@ -262,7 +262,43 @@
     'xor.note': 'UTF-8のバイト列にXORします。鍵はブラウザーの乱数（crypto.getRandomValues）で作り、外へ送りません。',
     'xor.link': '🔗 OTP Animation',
     'xor.statusBack': 'もう一度XORして、元の平文に戻りました。',
-    'xor.statusEqual': 'C1 ⊕ C2とP1 ⊕ P2が一致しました（先頭{n}バイト）。鍵を知らなくても、平文どうしのXORが分かってしまいます。'
+    'xor.statusEqual': 'C1 ⊕ C2とP1 ⊕ P2が一致しました（先頭{n}バイト）。鍵を知らなくても、平文どうしのXORが分かってしまいます。',
+
+    'order.tableTitle': 'パーフェクトシャッフルの位数の表（2〜52枚）',
+    'order.colCards': '枚数',
+    'order.colOut': 'アウト',
+    'order.colIn': 'イン',
+    'order.tableNote': 'アウトシャッフルの位数は2の法（枚数−1）での位数、インシャッフルは法（枚数＋1）での位数です。'
+      + '52枚は、インシャッフルを26回くり返すと順番が逆になります（Diaconis・Graham・Kantor, 1983）。',
+    'order.cycles': '札の位置の巡回: {cycles}。巡回の長さの最小公倍数{k}が位数です。',
+    'order.repeatNote': '同じ文字があるので、文字列としては{n}回で元に戻りました（札の並べ替えとしては{k}回）。',
+    'order.formulaOut': '論文の式では、アウトシャッフルの位数は、2をくり返し掛けて{m}（枚数−1）で割った余りが初めて1になる回数で、{k}回です。',
+    'order.formulaIn': '論文の式では、インシャッフルの位数は、2をくり返し掛けて{m}（枚数＋1）で割った余りが初めて1になる回数で、{k}回です。',
+
+    'conj.title': '共役で対合を作る（エニグマが2回で戻る理由）',
+    'conj.body': 'エニグマの電流は、ローターgを通り、反転円盤hで折り返し、gを逆向きに戻ります（c → g⁻¹(h(g(c)))）。'
+      + 'hが対合なら、2回通すと(g⁻¹hg)(g⁻¹hg) = g⁻¹h²g = 恒等になるので、どんな並べ替えgで挟んでも対合のままです。不動点の数と組の数も、hと同じになります。',
+    'conj.g': '並べ替えg（26文字）',
+    'conj.h': '対合h（26文字）',
+    'conj.run': 'g⁻¹ ∘ h ∘ gを判定器に入れる',
+    'conj.plain': 'h ∘ g（戻らない）を判定器に入れる',
+    'conj.random': 'gをランダムにする',
+    'conj.result': 'hは不動点{hf}個・{hp}組で、g⁻¹ ∘ h ∘ gも不動点{rf}個・{rp}組です（判定器に入れました）。',
+    'conj.enigma': 'この組み合わせ（ローターIと反転円盤B）は、エニグマの簡易版の位置Aでの対応と同じです。',
+    'conj.notInv': 'hが対合ではないので、g⁻¹ ∘ h ∘ gも対合になりません（巡回の長さの組み合わせはhと同じです）。',
+    'conj.plainResult': 'g⁻¹で戻らずにhを続けると、対合になるとは限りません（判定器の結果を見てください）。',
+    'conj.errG': '並べ替えgを26文字の並べ替えとして読めません。{detail}',
+    'conj.errH': '対合hを26文字の並べ替えとして読めません。{detail}',
+
+    'hill.random': '自己逆の行列をランダムに作る',
+    'hill.example': '例の行列に戻す',
+    'hill.matrix': 'A = {a}、A² = {sq}（mod 26）、行列式{det}',
+    'hill.plain': '英字だけを大文字にした平文（奇数個ならXを足す）',
+    'hill.once': '1回目',
+    'hill.twice': '2回目',
+    'hill.back': '2回目で、1回目の前の平文に戻りました。',
+    'hill.empty': '英字を入力してください。',
+    'hill.count': '2×2の行列（mod 26）のうち、可逆なものは{invertible}個、そのうち自己逆（A² ≡ I）は{involutory}個です（全部数えた値）。'
   };
 
   const en = {
@@ -557,7 +593,46 @@
     'xor.note': 'XOR is applied to the UTF-8 bytes. The key is made with the browser random generator (crypto.getRandomValues) and is never sent anywhere.',
     'xor.link': '🔗 OTP Animation',
     'xor.statusBack': 'XORed again and back to the original plaintext.',
-    'xor.statusEqual': 'C1 ⊕ C2 equals P1 ⊕ P2 (first {n} bytes). Without knowing the key, the XOR of the plaintexts is revealed.'
+    'xor.statusEqual': 'C1 ⊕ C2 equals P1 ⊕ P2 (first {n} bytes). Without knowing the key, the XOR of the plaintexts is revealed.',
+
+    'order.tableTitle': 'Orders of perfect shuffles (2 to 52 cards)',
+    'order.colCards': 'Cards',
+    'order.colOut': 'Out',
+    'order.colIn': 'In',
+    'order.tableNote': 'The order of an out-shuffle is the order of 2 modulo (cards − 1), and that of an in-shuffle is the order of 2 modulo (cards + 1). '
+      + '52 cards are reversed by 26 in-shuffles (Diaconis, Graham and Kantor, 1983).',
+    'order.cycles': 'Cycles of card positions: {cycles}. The least common multiple of the cycle lengths, {k}, is the order.',
+    'order.repeatNote': 'Because some characters repeat, the string returned after {n} times (as a rearrangement of cards, {k} times).',
+    'order.formulaOut': 'By the formula in the paper, the order of the out-shuffle is the number of times you multiply by 2 '
+      + 'until the remainder modulo {m} (cards − 1) first becomes 1: {k} times.',
+    'order.formulaIn': 'By the formula in the paper, the order of the in-shuffle is the number of times you multiply by 2 '
+      + 'until the remainder modulo {m} (cards + 1) first becomes 1: {k} times.',
+
+    'conj.title': 'Making involutions by conjugation (why the Enigma returns after two)',
+    'conj.body': 'In the Enigma, the current passes through the rotor g, turns back at the reflector h and returns through g in reverse (c → g⁻¹(h(g(c)))). '
+      + 'If h is an involution, passing twice gives (g⁻¹hg)(g⁻¹hg) = g⁻¹h²g = the identity, so it stays an involution whatever rearrangement g surrounds it. '
+      + 'The numbers of fixed points and pairs are also the same as those of h.',
+    'conj.g': 'Rearrangement g (26 letters)',
+    'conj.h': 'Involution h (26 letters)',
+    'conj.run': 'Put g⁻¹ ∘ h ∘ g into the checker',
+    'conj.plain': 'Put h ∘ g (no return) into the checker',
+    'conj.random': 'Make g random',
+    'conj.result': 'h has {hf} fixed points and {hp} pairs, and g⁻¹ ∘ h ∘ g also has {rf} fixed points and {rp} pairs (put into the checker).',
+    'conj.enigma': 'This combination (rotor I and reflector B) is the same as the mapping of the simplified Enigma at position A.',
+    'conj.notInv': 'h is not an involution, so g⁻¹ ∘ h ∘ g is not one either (its cycle lengths are the same as those of h).',
+    'conj.plainResult': 'Following g with h without returning through g⁻¹ does not necessarily give an involution (see the checker result).',
+    'conj.errG': 'The rearrangement g cannot be read as a rearrangement of 26 letters. {detail}',
+    'conj.errH': 'The involution h cannot be read as a rearrangement of 26 letters. {detail}',
+
+    'hill.random': 'Make a random self-inverse matrix',
+    'hill.example': 'Back to the example matrix',
+    'hill.matrix': 'A = {a}, A² = {sq} (mod 26), determinant {det}',
+    'hill.plain': 'Plaintext with letters only, in upper case (X added if the count is odd)',
+    'hill.once': 'First application',
+    'hill.twice': 'Second application',
+    'hill.back': 'The second application gives back the plaintext from before the first.',
+    'hill.empty': 'Enter some letters.',
+    'hill.count': 'Of the 2×2 matrices (mod 26), {invertible} are invertible, and {involutory} of those are self-inverse (A² ≡ I) (counted exhaustively).'
   };
 
   const MESSAGES = { ja, en };

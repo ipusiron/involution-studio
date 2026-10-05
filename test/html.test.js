@@ -106,3 +106,10 @@ test('判定器に書いた通り数（26文字の対合と、不動点のない
   const vars = parseVars(html.match(/data-i18n="checker.count" data-i18n-vars="([^"]+)"/)[1]);
   assert.deepEqual(vars, { all: C.involutionCount(26).toLocaleString('en-US'), free: C.fixedPointFreeCount(26).toLocaleString('en-US') });
 });
+
+test('Hill の生成器に書いた個数（可逆な2×2行列と、そのうち自己逆のもの）は、計算部が全部数えた値と同じ', () => {
+  const C = load('js/involution-core.js').InvolutionCore;
+  const vars = parseVars(html.match(/data-i18n="hill.count" data-i18n-vars="([^"]+)"/)[1]);
+  const { invertible, involutory } = C.hill2Census();
+  assert.deepEqual(vars, { invertible: invertible.toLocaleString('en-US'), involutory: involutory.length.toLocaleString('en-US') });
+});

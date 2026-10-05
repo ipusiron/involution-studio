@@ -10,7 +10,7 @@ English · [日本語](README.md)
 
 **Day051 - 100 Security Tools with Generative AI**
 
-Involution Studio is a learning hub for checking involutions, transforms that return to the original when applied twice, with lightweight demos. Each demo for substitution (Atbash, ROT13, ROT47), transposition (string reversal, pair swap, matrix transposition) and bitwise operations (NOT, Feistel structure) has a button that applies the transform to the result again, so you can see it return to the original on the second application. The Feistel structure is shown one step at a time, from encryption to decryption on the same circuit with the keys in reverse order. You can also check how many times a transform takes to return (its order), use a checker for 26-letter substitution tables, try a simplified Enigma reflector, see XOR and key reuse, and compare units of reversal (code unit, code point, grapheme).
+Involution Studio is a learning hub for checking involutions, transforms that return to the original when applied twice, with lightweight demos. Each demo for substitution (Atbash, ROT13, ROT47), transposition (string reversal, pair swap, matrix transposition) and bitwise operations (NOT, Feistel structure) has a button that applies the transform to the result again, so you can see it return to the original on the second application. The Feistel structure is shown one step at a time, from encryption to decryption on the same circuit with the keys in reverse order. You can also check how many times a transform takes to return (its order), use a checker and conjugation for 26-letter substitution tables, try a simplified Enigma reflector and self-inverse Hill matrices, see XOR and key reuse, and compare units of reversal (code unit, code point, grapheme).
 
 ---
 
@@ -70,6 +70,9 @@ You can try it directly in your browser.
 
 - How many times until it returns (order): repeat Caesar (shift 1–25), ROT13, Atbash, string reversal, pair swap or a perfect shuffle (out or in) until the input returns, and list the number of times and the intermediate states
 - Involution checker: from a 26-letter substitution table (where A to Z go), show whether it is an involution, its fixed points, swapped pairs, cycles of 3 or more letters and its order. Examples include Atbash, ROT13, Caesar, Beaufort, Enigma reflector B, rotor I and random involutions (crypto.getRandomValues)
+- Cycles and table of perfect shuffles: shows the cycles of card positions and the formula from the paper, and opens a table of orders for 2 to 52 cards
+- Making involutions by conjugation: from a rearrangement g and an involution h, make g⁻¹ ∘ h ∘ g (the path of the current in the Enigma) and put it into the checker. You can also compare it with h ∘ g, which does not return through g
+- Self-inverse Hill matrix generator: pick a random self-inverse 2×2 matrix and check that text returns after two applications
 - Unit of reversal: choose code point, UTF-16 code unit or grapheme (one visible character). The page warns when an intermediate string is no longer valid Unicode and when grapheme reversal does not return
 
 ### 🔐 The Enigma and XOR
@@ -164,6 +167,8 @@ The number of repetitions a transform needs before it first returns to the origi
 | Perfect shuffle (out) | ABCDEFGH | 3 |
 | Perfect shuffle (in) | ABCDEFGH | 6 |
 
+When the card positions are split into cycles, the least common multiple of the cycle lengths is the order. For example, the cycles of an out-shuffle of 8 cards are (1)(2 3 5)(4 7 6)(8), and the order is 3. By Lemma 1 of Diaconis, Graham and Kantor, the order of an out-shuffle of 2n cards is the order of 2 modulo (2n−1), and that of an in-shuffle is the order of 2 modulo (2n+1). 52 cards are reversed by 26 in-shuffles.
+
 ### The checker and the number of involutions
 
 When a substitution table is split into cycles (rings you follow until you come back to the starting letter), an involution is a permutation with no cycle of length 3 or more. Of the rearrangements of 26 letters, 532,985,208,200,576 are involutions, and 7,905,853,580,625 of those have no fixed points (they consist only of 13 swapped pairs).
@@ -188,9 +193,11 @@ In the Enigma, each key press advances the rotor, and the current passes through
 
 The simplified version in this tool has only one rotor (rotor I of the Enigma I, EKMFLGDQVZNTOWYHXUSPAIBRCJ) and reflector B (YRUHQSLDPXNGOKMIEBFZCWVJAT). With starting position A, the input HELLOWORLD encrypts to FJGANRHBSE, and running FJGANRHBSE from the same position gives back HELLOWORLD. At all 26 positions, the mapping is an involution without fixed points.
 
+The Enigma returns after two applications because it has the form of a conjugate. The path through the rotor g, back at the reflector h and back through g in reverse is g⁻¹ ∘ h ∘ g, and if h is an involution, (g⁻¹hg)(g⁻¹hg) = g⁻¹h²g = the identity. The cycle lengths do not change either, so surrounding an h without fixed points gives an involution without fixed points. Rotor I surrounding reflector B matches the mapping of the simplified version at position A. Following g with h without returning through g, h ∘ g, does not necessarily give an involution.
+
 ### Self-inverse Hill matrices
 
-The Hill cipher transforms groups of letters with a matrix. With a self-inverse matrix where A² ≡ I (mod 26) as the key, encryption and decryption use the same matrix. The example in this tool is A = [[3, 2], [9, 23]]; A² is the identity matrix and its determinant is 25 (coprime to 26).
+The Hill cipher transforms groups of letters with a matrix. With a self-inverse matrix where A² ≡ I (mod 26) as the key, encryption and decryption use the same matrix. The example in this tool is A = [[3, 2], [9, 23]]; A² is the identity matrix and its determinant is 25 (coprime to 26). Multiplying pairs of letters as column vectors by A turns HI into LN and LN back into HI. Of the 2×2 matrices (mod 26), 157,248 are invertible, and 736 of those are self-inverse (counted exhaustively).
 
 ### XOR and key reuse
 
@@ -255,7 +262,8 @@ Atbash, ROT13 and ROT47 have no key. Anyone who knows the method can undo them w
 - History and religious history classes: introduce Atbash, which comes from a substitution of Hebrew letters, and the "Sheshach" example in Jeremiah
 - Card tricks and magic: talk about the difference between pair swap, which returns after two applications, and the perfect shuffle (out-shuffle), which takes 8 shuffles with 52 cards
 - Electronics and logic circuits: check with 8-bit binary that passing through NOT twice gives back the original bits
-- Group theory and combinatorics classes: show permutations split into cycles, orders and the number of involutions (532,985,208,200,576 for 26 letters) concretely with the checker and the order demo
+- Group theory and combinatorics classes: show permutations split into cycles, orders and the number of involutions (532,985,208,200,576 for 26 letters) concretely with the checker and the order demo. You can also check with the Enigma example that conjugation (g⁻¹hg) keeps the cycle type
+- Number theory classes: check with the table for 2 to 52 cards that the number of perfect shuffles equals the order of 2 modulo (cards ∓ 1)
 - History (World War II) and history of cryptography classes: check with the simplified version that the Enigma reflector made encryption and decryption the same operation while also creating the weakness that no letter is encrypted into itself
 - Security training: show with live numbers that reusing a key in a stream cipher or one-time pad leaks the XOR of the plaintexts from the XOR of the ciphertexts
 - Implementing and testing string processing: check with emoji and Hangul jamo that results change depending on whether "one character" is counted by code unit, code point or grapheme
@@ -282,6 +290,7 @@ This tool is for learning. Please do not misuse it.
 - Atbash, ROT13 and ROT47 are transforms without a key and are not ciphers that keep secrets
 - String reversal and pair swap work by code point. Emoji made of several code points look broken after the first application
 - Bitwise NOT handles only 8 bits. Characters are limited to one character from U+0000 to U+00FF
+- The Hill generator handles only 2×2 matrices. Characters other than letters are removed, and X is added when the number of letters is odd
 - Input fields accept up to 200 characters (40 for the XOR plaintexts)
 - The Enigma demo is a simplified version with only one rotor and reflector B. It does not reproduce the three rotors, ring settings, plugboard or rotor stepping of the real machine
 - "Random involution" in the checker makes examples for learning and does not pick uniformly from all involutions
@@ -298,6 +307,7 @@ npm test
 - Runs on the standard Node.js 22+ test runner (`node:test`) with no dependencies. GitHub Actions runs it on every push and pull request
 - Core: Atbash, ROT13, ROT47, string reversal and pair swap return to the original after two applications (ASCII, Japanese, emoji, combining characters), NOT for all 256 values, transposition, input parsing, every Feistel step (256 values × 46 key sets) and the half round for all 4096 combinations
 - Core added in the second release: orders (25 Caesar shifts, shuffles compared with a separate reference), the checker and its examples, the number of involutions (full enumeration up to 7 letters), the simplified Enigma (all 26 positions), units of reversal, XOR and key reuse, and the self-inverse Hill matrix
+- Core added in the third release: conjugation (matching the Enigma at position A; fixed points and pairs unchanged under random rearrangements), shuffle cycles and the formula from the paper (2 to 52 cards), reversing 52 cards by 26 in-shuffles, and all 2×2 matrices (157,248 invertible, 736 self-inverse)
 - index.html CSP, ARIA (tabs and accordions), labels and agreement with the dictionary, the Japanese and English dictionaries, language selection, color contrast (text 4.5:1 and borders 3:1 or more, in light and dark), and line length
 - The tables and numbers in both READMEs (the transform examples, the order table, the checker table, the Feistel step table, the Enigma example, 50 of 4096, the number of perfect shuffles, the number of involutions), the directory tree and the images are also checked against the implementation
 
