@@ -40,7 +40,7 @@ test('タブは WAI-ARIA の形（tablist の中はタブだけ、aria-controls 
 
 test('アコーディオンは見出しの中のボタンで開閉し、aria-controls の先が実在して最初は閉じている', () => {
   const headers = [...html.matchAll(/<button type="button" class="accordion-header" id="([a-z0-9-]+)" aria-expanded="false" aria-controls="([a-z0-9-]+)">/g)];
-  assert.equal(headers.length, 11);
+  assert.equal(headers.length, 13);
   for (const [, btn, region] of headers) {
     assert.match(html, new RegExp(`<div class="accordion-content" id="${region}" role="region" aria-labelledby="${btn}" hidden>`), region);
   }

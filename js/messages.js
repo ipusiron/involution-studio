@@ -63,7 +63,7 @@
     'trans.lead': '並び順を入れ替える変換のうち、2回適用すると元に戻るものです。文字列や行列で確かめられます。',
     'reverse.title': '文字反転',
     'reverse.body': '文字列を逆順に並べ替える、もっとも基本的な転置です。「HELLO」→「OLLEH」→「HELLO」のように、2回適用で元に戻ります。',
-    'reverse.note': 'Unicodeのコードポイント単位で並べ替えます。家族の絵文字や国旗のように、複数のコードポイントで1つに見える文字は、1回目で崩れて見えますが、2回目で元に戻ります。',
+    'reverse.note': 'コードポイント（Unicodeの1文字）で並べ替えると、家族の絵文字や国旗のように、複数のコードポイントで1つに見える文字は1回目で崩れて見えますが、2回目で元に戻ります。',
     'reverse.step': '{n}回目: 「{from}」→「{to}」',
     'reverse.run': '反転',
     'reverse.again': '結果をもう一度反転',
@@ -143,7 +143,53 @@
     'feistel.halfRun': '入力値とk1で2回適用',
     'feistel.halfResult': '({l0}, {r0}) → ({l1}, {r1}) → ({l2}, {r2})',
     'feistel.halfBack': '2回目で元の(L, R)に戻りました。',
-    'feistel.note': '同じ鍵のまま4ラウンド続けても、元の値に戻るとは限りません（このデモのFでは、入力と鍵の4096通りのうち戻るのは50通りだけ）。'
+    'feistel.note': '同じ鍵のまま4ラウンド続けても、元の値に戻るとは限りません（このデモのFでは、入力と鍵の4096通りのうち戻るのは50通りだけ）。',
+
+    'order.title': '何回で元に戻るか（位数）',
+    'order.body': '同じ変換をくり返して、はじめて元に戻るまでの回数を、その変換の位数と呼びます。インボリューションは、位数が2の変換です（何も変えない変換は位数1）。\n'
+      + 'シーザー暗号の3文字ずらしは26回、ROT13は2回で戻ります。トランプのパーフェクトシャッフルは、枚数によって回数が大きく変わります。',
+    'order.kind': '変換',
+    'order.kindCaesar': 'シーザー（ずらし幅を指定）',
+    'order.kindRot13': 'ROT13',
+    'order.kindAtbash': 'Atbash',
+    'order.kindReverse': '文字反転',
+    'order.kindPairs': 'ペア交換',
+    'order.kindOut': 'パーフェクトシャッフル（アウト）',
+    'order.kindIn': 'パーフェクトシャッフル（イン）',
+    'order.k': 'ずらし幅（1〜25）',
+    'order.run': '回数を数える',
+    'order.err.empty': 'テキストを入力してください。',
+    'order.err.odd': 'パーフェクトシャッフルは、文字数が偶数のときだけ使えます。',
+    'order.err.k': 'ずらし幅は1〜25の整数で入力してください。',
+    'order.resultInv': '{n}回で元に戻りました。2回で戻るので、インボリューションです。',
+    'order.resultNot': '{n}回で元に戻りました。インボリューションではありません。',
+    'order.resultSame': '1回目で変わりません（この入力では何も動きません）。',
+    'order.resultNone': '{n}回くり返しても元に戻りませんでした。',
+    'order.state': '{n}回目: {s}',
+    'order.skip': '…（{from}〜{to}回目は省略）',
+
+    'modern.title': '現代暗号とエニグマのインボリューション',
+    'modern.feistel': 'Feistel構造の暗号（DESなど）は、鍵の順番を逆にするだけで、暗号化と同じ回路で復号できます（FIPS 46-3）。',
+    'modern.khazad': 'Khazad（Barreto・Rijmen）はFeistel構造ではありませんが、ラウンドの部品をすべてインボリューションにして、'
+      + '復号を「鍵スケジュールだけが違う同じ処理」にしています。Sボックスも2回で元に戻ります（S[S[x]] = x）。',
+    'modern.prince': 'PRINCE（Borghoffほか, 2012）は、復号が、2つの白色化鍵を入れ替え、中心部の鍵を定数αとXORした鍵での暗号化と同じになるように作られています（α反射）。',
+    'modern.enigma': 'エニグマは、反転円盤があるので、同じ設定なら暗号化と復号が同じ操作になります。'
+      + 'その代わり、どの文字も自分自身には暗号化されず、これが解読の手がかりになる弱点にもなりました（換字式タブの「エニグマの反転円盤」で試せます）。',
+
+    'reverse.unit': '反転の単位',
+    'reverse.unitCodePoint': 'コードポイント（Unicodeの1文字）',
+    'reverse.unitCodeUnit': 'UTF-16のコード単位',
+    'reverse.unitGrapheme': '書記素（見た目の1文字）',
+    'reverse.samples': '例を入れる',
+    'reverse.sampleEmoji': '絵文字（A😀B）',
+    'reverse.sampleFlags': '国旗（🇯🇵🇺🇸）',
+    'reverse.sampleJamo': 'ハングルの字母（ᅡᄀ）',
+    'reverse.units': 'UTF-16のコード単位で並べ替えると、絵文字のサロゲートペアが分かれて、途中の文字列が正しいUnicodeでなくなります（2回目で戻ります）。'
+      + '書記素（見た目の1文字）で並べ替えると見た目は保てますが、いつも2回で戻るとは限りません。'
+      + 'ハングルの字母は、子音のあとの母音だけが1文字にまとまるので（UAX #29の規則GB6）、「母音・子音」の順の2文字を反転すると1文字にまとまり、もう一度反転しても戻りません。',
+    'reverse.warnBroken': '{n}回目の結果は、正しいUnicodeの文字列ではありません（孤立したサロゲートを含みます）。',
+    'reverse.notBack': '{n}回適用しても元に戻りません。書記素の区切りが、並べ替えたあとで変わったためです。',
+    'reverse.noSegmenter': 'このブラウザーは書記素の区切り（Intl.Segmenter）に対応していません。'
   };
 
   const en = {
@@ -217,8 +263,8 @@
     'reverse.title': 'String reversal',
     'reverse.body': 'The most basic transposition: arrange a string in reverse order. '
       + '"HELLO" → "OLLEH" → "HELLO" returns to the original after two applications.',
-    'reverse.note': 'Rearranges by Unicode code point. Characters that look like one but consist of several code points, such as family emoji and flags, '
-      + 'look broken after the first application but come back after the second.',
+    'reverse.note': 'When rearranged by code point (one Unicode character), characters that look like one but consist of several code points, '
+      + 'such as family emoji and flags, look broken after the first application but come back after the second.',
     'reverse.step': 'Application {n}: "{from}" → "{to}"',
     'reverse.run': 'Reverse',
     'reverse.again': 'Reverse the result again',
@@ -308,7 +354,59 @@
     'feistel.halfResult': '({l0}, {r0}) → ({l1}, {r1}) → ({l2}, {r2})',
     'feistel.halfBack': 'Back to the original (L, R) after the second application.',
     'feistel.note': 'Running 4 rounds with the same key does not necessarily return to the original value '
-      + '(with the F of this demo, only 50 of the 4,096 combinations of input and key do).'
+      + '(with the F of this demo, only 50 of the 4,096 combinations of input and key do).',
+
+    'order.title': 'How many times until it returns (order)',
+    'order.body': 'The number of repetitions a transform needs before it first returns to the original is called its order. '
+      + 'An involution is a transform of order 2 (a transform that changes nothing has order 1).\n'
+      + 'A Caesar shift of 3 returns after 26 times and ROT13 after 2. '
+      + 'For a perfect shuffle of cards, the number changes a lot with the number of cards.',
+    'order.kind': 'Transform',
+    'order.kindCaesar': 'Caesar (choose the shift)',
+    'order.kindRot13': 'ROT13',
+    'order.kindAtbash': 'Atbash',
+    'order.kindReverse': 'String reversal',
+    'order.kindPairs': 'Pair swap',
+    'order.kindOut': 'Perfect shuffle (out)',
+    'order.kindIn': 'Perfect shuffle (in)',
+    'order.k': 'Shift (1–25)',
+    'order.run': 'Count the times',
+    'order.err.empty': 'Enter some text.',
+    'order.err.odd': 'A perfect shuffle works only when the number of characters is even.',
+    'order.err.k': 'Enter the shift as an integer from 1 to 25.',
+    'order.resultInv': 'Back to the original after {n} times. It returns after 2, so it is an involution.',
+    'order.resultNot': 'Back to the original after {n} times. It is not an involution.',
+    'order.resultSame': 'The first application changes nothing (nothing moves for this input).',
+    'order.resultNone': 'Not back to the original after {n} repetitions.',
+    'order.state': 'Time {n}: {s}',
+    'order.skip': '… (times {from}–{to} omitted)',
+
+    'modern.title': 'Involutions in modern ciphers and the Enigma',
+    'modern.feistel': 'Feistel ciphers such as DES decrypt on the same circuit as encryption just by reversing the order of the keys (FIPS 46-3).',
+    'modern.khazad': 'Khazad (Barreto and Rijmen) is not a Feistel cipher, but it makes every component of the round an involution, '
+      + 'so decryption is the same process with only a different key schedule. Its S-box also returns after two applications (S[S[x]] = x).',
+    'modern.prince': 'PRINCE (Borghoff et al., 2012) is built so that decryption equals encryption with a key in which the two whitening keys are swapped '
+      + 'and the core key is XORed with a constant α (α-reflection).',
+    'modern.enigma': 'Thanks to its reflector, the Enigma makes encryption and decryption the same operation with the same settings. '
+      + 'In exchange, no letter is ever encrypted into itself, which also became a weakness that gave codebreakers a foothold '
+      + '(try it in "The Enigma reflector" on the Substitution tab).',
+
+    'reverse.unit': 'Unit of reversal',
+    'reverse.unitCodePoint': 'Code point (one Unicode character)',
+    'reverse.unitCodeUnit': 'UTF-16 code unit',
+    'reverse.unitGrapheme': 'Grapheme (one visible character)',
+    'reverse.samples': 'Insert an example',
+    'reverse.sampleEmoji': 'Emoji (A😀B)',
+    'reverse.sampleFlags': 'Flags (🇯🇵🇺🇸)',
+    'reverse.sampleJamo': 'Hangul jamo (ᅡᄀ)',
+    'reverse.units': 'Reversing by UTF-16 code unit splits the surrogate pairs of emoji, so the intermediate string is no longer valid Unicode '
+      + '(it comes back on the second application). '
+      + 'Reversing by grapheme (one visible character) keeps the look, but it does not always return after two applications. '
+      + 'Hangul jamo join into one character only when a vowel follows a consonant (rule GB6 of UAX #29), '
+      + 'so reversing the two characters "vowel, consonant" joins them into one, and reversing again does not bring them back.',
+    'reverse.warnBroken': 'The result of application {n} is not a valid Unicode string (it contains a lone surrogate).',
+    'reverse.notBack': 'Not back to the original after {n} applications, because the grapheme boundaries changed after rearranging.',
+    'reverse.noSegmenter': 'This browser does not support grapheme segmentation (Intl.Segmenter).'
   };
 
   const MESSAGES = { ja, en };

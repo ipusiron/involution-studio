@@ -351,6 +351,16 @@ fieldset.keys {
   filter: brightness(1.1);
 }
 
+.sample-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.btn.small { font-size: 14px; }
+
 .result-label, .table-label, .matrix-label, .progress {
   margin: 8px 0 4px;
   color: var(--muted);

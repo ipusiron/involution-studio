@@ -65,6 +65,46 @@
 
         <article class="accordion-item">
           <h3 class="accordion-heading">
+            <button type="button" class="accordion-header" id="acc-order-btn" aria-expanded="false" aria-controls="acc-order">
+              <span data-i18n="order.title">何回で元に戻るか（位数）</span><span class="accordion-icon" aria-hidden="true">▼</span>
+            </button>
+          </h3>
+          <div class="accordion-content" id="acc-order" role="region" aria-labelledby="acc-order-btn" hidden>
+            <p data-i18n="order.body">同じ変換をくり返して、はじめて元に戻るまでの回数を、その変換の位数と呼びます。インボリューションは、位数が2の変換です（何も変えない変換は位数1）。<br>
+              シーザー暗号の3文字ずらしは26回、ROT13は2回で戻ります。トランプのパーフェクトシャッフルは、枚数によって回数が大きく変わります。</p>
+            <div class="demo">
+              <div class="field-row">
+                <div class="field">
+                  <label class="field-label" for="order-kind" data-i18n="order.kind">変換</label>
+                  <select id="order-kind">
+                    <option value="caesar" data-i18n="order.kindCaesar">シーザー（ずらし幅を指定）</option>
+                    <option value="rot13" data-i18n="order.kindRot13">ROT13</option>
+                    <option value="atbash" data-i18n="order.kindAtbash">Atbash</option>
+                    <option value="reverse" data-i18n="order.kindReverse">文字反転</option>
+                    <option value="pairs" data-i18n="order.kindPairs">ペア交換</option>
+                    <option value="outShuffle" data-i18n="order.kindOut">パーフェクトシャッフル（アウト）</option>
+                    <option value="inShuffle" data-i18n="order.kindIn">パーフェクトシャッフル（イン）</option>
+                  </select>
+                </div>
+                <div class="field" id="order-k-field">
+                  <label class="field-label" for="order-k" data-i18n="order.k">ずらし幅（1〜25）</label>
+                  <input type="text" id="order-k" class="num-input" value="3" maxlength="2" inputmode="numeric" autocomplete="off">
+                </div>
+              </div>
+              <label class="field-label" for="order-input" data-i18n="demo.text">テキスト</label>
+              <input type="text" id="order-input" class="text-input" value="ABCDEFGHIJKLMNOPQRSTUVWXYZ" maxlength="200" autocomplete="off" spellcheck="false">
+              <div class="btn-row">
+                <button type="button" class="btn primary" id="order-run" data-i18n="order.run">回数を数える</button>
+              </div>
+              <p class="error" id="order-error" role="alert" hidden></p>
+              <p class="status" id="order-result" aria-live="polite"></p>
+              <ul class="steps mono" id="order-states"></ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="accordion-item">
+          <h3 class="accordion-heading">
             <button type="button" class="accordion-header" id="acc-crypto-btn" aria-expanded="false" aria-controls="acc-crypto">
               <span data-i18n="basics.crypto.title">暗号での活用</span><span class="accordion-icon" aria-hidden="true">▼</span>
             </button>
@@ -73,6 +113,20 @@
             <p data-i18n="basics.crypto.body">インボリューションの暗号では、暗号化と復号が同じ手順になります。同じ回路・同じプログラムで両方を行えるので、実装を1つにまとめられます。<br>
               AtbashはA↔Z、B↔Yのようにアルファベットを逆順に対応させ、ROT13は26文字の半分（13文字）、ROT47は94文字の半分（47文字）ずらします。どれも2回適用すると元に戻ります。<br>
               Feistel構造は、構造全体はインボリューションではありませんが、鍵の順番を逆にするだけで、暗号化と同じ回路で復号できます。DESはこの性質を使っています（FIPS 46-3）。</p>
+          </div>
+        </article>
+
+        <article class="accordion-item">
+          <h3 class="accordion-heading">
+            <button type="button" class="accordion-header" id="acc-modern-btn" aria-expanded="false" aria-controls="acc-modern">
+              <span data-i18n="modern.title">現代暗号とエニグマのインボリューション</span><span class="accordion-icon" aria-hidden="true">▼</span>
+            </button>
+          </h3>
+          <div class="accordion-content" id="acc-modern" role="region" aria-labelledby="acc-modern-btn" hidden>
+            <p data-i18n="modern.feistel">Feistel構造の暗号（DESなど）は、鍵の順番を逆にするだけで、暗号化と同じ回路で復号できます（FIPS 46-3）。</p>
+            <p data-i18n="modern.khazad">Khazad（Barreto・Rijmen）はFeistel構造ではありませんが、ラウンドの部品をすべてインボリューションにして、復号を「鍵スケジュールだけが違う同じ処理」にしています。Sボックスも2回で元に戻ります（S[S[x]] = x）。</p>
+            <p data-i18n="modern.prince">PRINCE（Borghoffほか, 2012）は、復号が、2つの白色化鍵を入れ替え、中心部の鍵を定数αとXORした鍵での暗号化と同じになるように作られています（α反射）。</p>
+            <p data-i18n="modern.enigma">エニグマは、反転円盤があるので、同じ設定なら暗号化と復号が同じ操作になります。その代わり、どの文字も自分自身には暗号化されず、これが解読の手がかりになる弱点にもなりました（換字式タブの「エニグマの反転円盤」で試せます）。</p>
           </div>
         </article>
 
@@ -194,6 +248,22 @@
           <div class="accordion-content" id="acc-reverse" role="region" aria-labelledby="acc-reverse-btn" hidden>
             <p data-i18n="reverse.body">文字列を逆順に並べ替える、もっとも基本的な転置です。「HELLO」→「OLLEH」→「HELLO」のように、2回適用で元に戻ります。</p>
             <div class="demo">
+              <div class="field-row">
+                <div class="field">
+                  <label class="field-label" for="reverse-unit" data-i18n="reverse.unit">反転の単位</label>
+                  <select id="reverse-unit">
+                    <option value="codePoint" data-i18n="reverse.unitCodePoint">コードポイント（Unicodeの1文字）</option>
+                    <option value="codeUnit" data-i18n="reverse.unitCodeUnit">UTF-16のコード単位</option>
+                    <option value="grapheme" data-i18n="reverse.unitGrapheme">書記素（見た目の1文字）</option>
+                  </select>
+                </div>
+              </div>
+              <div class="sample-row">
+                <span class="note" data-i18n="reverse.samples">例を入れる</span>
+                <button type="button" class="btn small" data-sample="emoji" data-i18n="reverse.sampleEmoji">絵文字（A😀B）</button>
+                <button type="button" class="btn small" data-sample="flags" data-i18n="reverse.sampleFlags">国旗（🇯🇵🇺🇸）</button>
+                <button type="button" class="btn small" data-sample="jamo" data-i18n="reverse.sampleJamo">ハングルの字母（ᅡᄀ）</button>
+              </div>
               <label class="field-label" for="reverse-input" data-i18n="demo.text">テキスト</label>
               <input type="text" id="reverse-input" class="text-input" value="HELLO" maxlength="200" autocomplete="off" spellcheck="false">
               <div class="btn-row">
@@ -204,8 +274,11 @@
               <p class="result-label" id="reverse-result-label" data-i18n="demo.result">結果</p>
               <output class="result" id="reverse-result" aria-labelledby="reverse-result-label"></output>
               <p class="status" id="reverse-status" aria-live="polite"></p>
+              <p class="error" id="reverse-warn" hidden></p>
               <ul class="steps" id="reverse-steps"></ul>
-              <p class="note" data-i18n="reverse.note">Unicodeのコードポイント単位で並べ替えます。家族の絵文字や国旗のように、複数のコードポイントで1つに見える文字は、1回目で崩れて見えますが、2回目で元に戻ります。</p>
+              <p class="note" data-i18n="reverse.note">コードポイント（Unicodeの1文字）で並べ替えると、家族の絵文字や国旗のように、複数のコードポイントで1つに見える文字は1回目で崩れて見えますが、2回目で元に戻ります。</p>
+              <p class="note" data-i18n="reverse.units">UTF-16のコード単位で並べ替えると、絵文字のサロゲートペアが分かれて、途中の文字列が正しいUnicodeでなくなります（2回目で戻ります）。書記素（見た目の1文字）で並べ替えると見た目は保てますが、いつも2回で戻るとは限りません。
+                ハングルの字母は、子音のあとの母音だけが1文字にまとまるので（UAX #29の規則GB6）、「母音・子音」の順の2文字を反転すると1文字にまとまり、もう一度反転しても戻りません。</p>
             </div>
           </div>
         </article>

@@ -100,6 +100,13 @@
     });
     renders.push(render);
     render();
+    // 設定を変えたときに、前の結果を消す
+    return {
+      reset() {
+        state.history = [];
+        render();
+      }
+    };
   }
 
   // Atbash の変換表（26組）。直前の変換で使った文字を強調する
@@ -118,13 +125,35 @@
   textDemo('rot13', C.rot13);
   textDemo('rot47', C.rot47);
 
-  // 文字反転: 適用した回ごとの「前→後」を並べる（多すぎるときは最後の8回）
-  textDemo('reverse', C.reverse, (h) => {
+  // 文字反転: 単位（コードポイント・コード単位・書記素）を選べる。適用した回ごとの「前→後」を並べる（多すぎるときは最後の8回）
+  const unitSelect = $('reverse-unit');
+  if (!C.graphemes('a')) unitSelect.querySelector('option[value="grapheme"]').disabled = true;
+  const reverseDemo = textDemo('reverse', (s) => C.reverseBy(s, unitSelect.value), (h) => {
     const list = $('reverse-steps');
     const items = [];
     for (let i = Math.max(1, h.length - 8); i < h.length; i++) items.push(el('li', null, t('reverse.step', { n: i, from: h[i - 1], to: h[i] })));
     list.replaceChildren(...items);
+    const warn = $('reverse-warn');
+    const n = h.length - 1;
+    let message = '';
+    if (n >= 1 && !C.wellFormed(h[n])) message = t('reverse.warnBroken', { n });
+    else if (n >= 2 && n % 2 === 0 && h[n] !== h[0]) message = t('reverse.notBack', { n });
+    warn.textContent = message;
+    warn.hidden = !message;
   });
+  unitSelect.addEventListener('change', () => reverseDemo.reset());
+  // 例の文字列（文字コードから組み立てる）
+  const SAMPLES = {
+    emoji: `A${String.fromCodePoint(0x1f600)}B`,
+    flags: String.fromCodePoint(0x1f1ef, 0x1f1f5, 0x1f1fa, 0x1f1f8),
+    jamo: String.fromCharCode(0x1161, 0x1100)
+  };
+  for (const b of document.querySelectorAll('[data-sample]')) {
+    b.addEventListener('click', () => {
+      $('reverse-input').value = SAMPLES[b.dataset.sample];
+      reverseDemo.reset();
+    });
+  }
 
   // ペア交換: 直前に入れ替えたペアと、残した1文字
   textDemo('pairs', (s) => C.swapPairs(s).output, (h) => {
@@ -138,6 +167,53 @@
     if (r.odd !== null) parts.push(t('pairs.odd', { c: r.odd }));
     detail.textContent = parts.join(' / ');
   });
+
+  // ===== 何回で元に戻るか（位数） =====
+  const order = { result: null, error: null };
+  const orderKind = $('order-kind');
+
+  function renderOrder() {
+    $('order-k-field').hidden = orderKind.value !== 'caesar';
+    const error = $('order-error');
+    error.hidden = !order.error;
+    error.textContent = order.error ? t(`order.err.${order.error}`) : '';
+    const result = $('order-result');
+    const list = $('order-states');
+    result.classList.remove('ok');
+    if (!order.result) {
+      result.textContent = '';
+      list.replaceChildren();
+      return;
+    }
+    const { order: n, states } = order.result;
+    if (n === null) result.textContent = t('order.resultNone', { n: states.length - 1 });
+    else if (n === 1) result.textContent = t('order.resultSame');
+    else result.textContent = t(n === 2 ? 'order.resultInv' : 'order.resultNot', { n });
+    result.classList.toggle('ok', n === 2);
+    // 途中の状態（多いときは最初の6つと最後の6つ）
+    const shown = states.length > 14 ? [...states.slice(0, 6).map((s, i) => [i, s]), null, ...states.slice(-6).map((s, i) => [states.length - 6 + i, s])]
+      : states.map((s, i) => [i, s]);
+    list.replaceChildren(...shown.map((x) => el('li', null, x ? t('order.state', { n: x[0], s: x[1] }) : t('order.skip', { from: 6, to: states.length - 7 }))));
+  }
+
+  $('order-run').addEventListener('click', () => {
+    const kind = orderKind.value;
+    const text = $('order-input').value;
+    const k = kind === 'caesar' ? C.parseIntIn($('order-k').value, 25) : 0;
+    order.error = kind === 'caesar' && !k ? 'k' : C.orderInputError(kind, text);
+    order.result = order.error ? null : C.orderOf(C.orderTransform(kind, k), text);
+    renderOrder();
+  });
+  // 変換の種類を変えたら、前の結果を消す
+  orderKind.addEventListener('change', () => {
+    order.result = null;
+    order.error = null;
+    renderOrder();
+  });
+  $('order-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.isComposing) $('order-run').click();
+  });
+  renders.push(renderOrder);
 
   // ===== 行列の転置（いまの行列を持ち、元の行列と比べて表示を決める） =====
   const M0 = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
