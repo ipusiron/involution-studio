@@ -18,7 +18,8 @@ const DOCS = {
     presets: { Atbash: 'atbash', ROT13: 'rot13', 'Beaufort（鍵A）': 'beaufortA', 'Beaufort（鍵B）': 'beaufortB', 'エニグマの反転円盤B': 'ukwB', 'シーザー（3ずらし）': 'caesar3',
       'エニグマのローターI': 'rotorI' },
     verdict: { yes: '対合', no: '対合でない', none: 'なし' },
-    claims2: ['532,985,208,200,576通り', '7,905,853,580,625通り', '26/gcd(k, 26)', 'A = [[3, 2], [9, 23]]', '開始位置A・入力HELLOWORLDの暗号文はFJGANRHBSE'],
+    claims2: ['532,985,208,200,576通り', '7,905,853,580,625通り', '26/gcd(k, 26)', 'A = [[3, 2], [9, 23]]', '開始位置A・入力HELLOWORLDの暗号文はFJGANRHBSE',
+      '(1)(2 3 5)(4 7 6)(8)で、位数は3', 'インシャッフルを26回くり返すと順番が逆', 'HIはLNに、LNはHIに戻ります', '可逆なものは157,248個、そのうち自己逆なものは736個'],
     names: { Atbash: 'atbash', ROT13: 'rot13', ROT47: 'rot47', '文字反転': 'reverse', 'ペア交換': 'pairs', 'ビット反転': 'not' },
     claims: ['(1010, 0000)＝160', '元の170に戻る', '入力値170（10101010）、鍵5・3・12・9', '4096通りのうち戻るのは50通り',
       'アウトシャッフルなら8回', 'インシャッフルなら52回', 'K16からK1の逆順'],
@@ -35,7 +36,9 @@ const DOCS = {
       'Caesar (shift 3)': 'caesar3', 'Enigma rotor I': 'rotorI' },
     verdict: { yes: 'Involution', no: 'Not an involution', none: 'none' },
     claims2: ['532,985,208,200,576 are involutions', '7,905,853,580,625 of those', '26/gcd(k, 26)', 'A = [[3, 2], [9, 23]]',
-      'the input HELLOWORLD encrypts to FJGANRHBSE'],
+      'the input HELLOWORLD encrypts to FJGANRHBSE',
+      '(1)(2 3 5)(4 7 6)(8), and the order is 3', '52 cards are reversed by 26 in-shuffles', 'turns HI into LN and LN back into HI',
+      '157,248 are invertible, and 736 of those'],
     names: { Atbash: 'atbash', ROT13: 'rot13', ROT47: 'rot47', 'String reversal': 'reverse', 'Pair swap': 'pairs', 'Bitwise NOT': 'not' },
     claims: ['(1010, 0000) = 160', 'gives back the original 170', 'input value 170 (10101010) and the keys 5, 3, 12 and 9',
       'only 50 of the 4096 combinations', '8 out-shuffles', '52 in-shuffles', 'from K16 to K1'],
@@ -218,6 +221,11 @@ for (const [lang, d] of Object.entries(DOCS)) {
     assert.equal(C.fixedPointFreeCount(26).toLocaleString('en-US'), '7,905,853,580,625');
     assert.deepEqual(C.mulMod(C.HILL_INVOLUTORY, C.HILL_INVOLUTORY, 26), [[1, 0], [0, 1]]);
     assert.equal(C.det2(C.HILL_INVOLUTORY, 26), 25);
+    assert.deepEqual(C.cyclesOf(C.shufflePositions(8, true)).map((c) => `(${c.map((i) => i + 1).join(' ')})`).join(''), '(1)(2 3 5)(4 7 6)(8)');
+    assert.equal(C.hillApply(C.HILL_INVOLUTORY, 'HI'), 'LN');
+    assert.equal(C.hillApply(C.HILL_INVOLUTORY, 'LN'), 'HI');
+    assert.deepEqual([C.hill2Census().invertible, C.hill2Census().involutory.length], [157248, 736]);
+    assert.deepEqual(C.conjugate(C.parseAlphabet(C.ROTOR_I).map, C.parseAlphabet(C.UKW_B).map), C.enigmaMapAt(0));
   });
 
   test(`${d.file}: ディレクトリー構造にすべてのファイルとディレクトリーが載り、全行に説明がある`, () => {
