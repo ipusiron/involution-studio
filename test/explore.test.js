@@ -178,3 +178,76 @@ test('自己逆の Hill 行列の例は A² ≡ I (mod 26)、行列式25（26と
   assert.deepEqual(C.mulMod(C.HILL_INVOLUTORY, C.HILL_INVOLUTORY, 26), [[1, 0], [0, 1]]);
   assert.equal(C.det2(C.HILL_INVOLUTORY, 26), 25);
 });
+
+test('共役: エニグマの簡易版の位置Aは、ローターIで反転円盤Bを挟んだもの。対合を挟むと、どの並べ替えでも対合のままで不動点の数も同じ', () => {
+  const R = C.parseAlphabet(C.ROTOR_I).map;
+  const U = C.parseAlphabet(C.UKW_B).map;
+  assert.deepEqual(C.conjugate(R, U), C.enigmaMapAt(0));
+  assert.deepEqual(C.invertMap(C.invertMap(R)), R);
+  let seed = 7;
+  const rand = (n) => {
+    seed = (seed * 1103515245 + 12345) % 2147483648;
+    return seed % n;
+  };
+  for (const key of ['ukwB', 'atbash', 'beaufortA', 'rot13']) {
+    const h = C.parseAlphabet(C.PRESETS[key]()).map;
+    const before = C.analyzePermutation(h);
+    for (let i = 0; i < 30; i++) {
+      const g = [...Array(26).keys()];
+      for (let j = 25; j > 0; j--) {
+        const k = rand(j + 1);
+        [g[j], g[k]] = [g[k], g[j]];
+      }
+      const after = C.analyzePermutation(C.conjugate(g, h));
+      assert.ok(after.involution, key);
+      assert.equal(after.fixed.length, before.fixed.length, key);
+      assert.equal(after.pairs.length, before.pairs.length, key);
+    }
+  }
+  // g⁻¹ で戻らずに h を続けるだけでは、対合にならない
+  const plain = C.analyzePermutation(C.composeMaps(R, U));
+  assert.ok(!plain.involution);
+});
+
+test('シャッフルの位置の置換は shuffle と同じ並べ替え。巡回の長さの最小公倍数と、論文の式（2 の法 n∓1 での位数）が、実際に回した回数と一致する', () => {
+  const lcm = (a, b) => {
+    const g = (x, y) => (y ? g(y, x % y) : x);
+    return (a / g(a, b)) * b;
+  };
+  for (let n = 2; n <= 52; n += 2) {
+    const deck = Array.from({ length: n }, (_, i) => String.fromCharCode(0x100 + i)).join('');
+    for (const out of [true, false]) {
+      const dest = C.shufflePositions(n, out);
+      const once = C.shuffle(deck, out);
+      [...deck].forEach((ch, i) => assert.equal([...once][dest[i]], ch, `${n} ${out} ${i}`));
+      const byCycles = C.cyclesOf(dest).reduce((acc, c) => lcm(acc, c.length), 1);
+      const byRun = C.orderOf(C.orderTransform(out ? 'outShuffle' : 'inShuffle'), deck).order;
+      assert.equal(byCycles, byRun, `${n} ${out}`);
+      assert.equal(C.shuffleOrder(n, out), byRun, `${n} ${out}`);
+    }
+  }
+  assert.deepEqual([C.shuffleOrder(52, true), C.shuffleOrder(52, false), C.shuffleOrder(26, true), C.shuffleOrder(26, false)], [8, 52, 20, 18]);
+  // 52枚はインシャッフル26回で逆順になる（論文の記述）
+  let deck = Array.from({ length: 52 }, (_, i) => String.fromCharCode(0x100 + i)).join('');
+  const start = deck;
+  for (let i = 0; i < 26; i++) deck = C.shuffle(deck, false);
+  assert.equal(deck, [...start].reverse().join(''));
+  assert.deepEqual(C.cyclesOf(C.shufflePositions(8, true)), [[0], [1, 2, 4], [3, 6, 5], [7]]);
+});
+
+test('自己逆の Hill 行列: 可逆な2×2行列157,248個のうち、A² ≡ I は736個。どれでも文は2回で戻る', () => {
+  const { invertible, involutory } = C.hill2Census();
+  assert.equal(invertible, 157248);
+  assert.equal(involutory.length, 736);
+  assert.ok(involutory.some((A) => JSON.stringify(A) === JSON.stringify(C.HILL_INVOLUTORY)));
+  for (const A of involutory) assert.deepEqual(C.mulMod(A, A, 26), [[1, 0], [0, 1]]);
+  assert.deepEqual(C.hillNormalize('Hello, World!'), { text: 'HELLOWORLD', padded: false });
+  assert.deepEqual(C.hillNormalize('abc'), { text: 'ABCX', padded: true });
+  for (const A of involutory.filter((_, i) => i % 23 === 0)) {
+    const once = C.hillApply(A, 'ATTACK AT DAWN');
+    assert.equal(C.hillApply(A, once), 'ATTACKATDAWN');
+  }
+  // HI＝(7, 8) → (3·7+2·8, 9·7+23·8) mod 26 ＝ (11, 13)＝LN、LN → (3·11+2·13, 9·11+23·13) mod 26 ＝ (7, 8)＝HI
+  assert.equal(C.hillApply(C.HILL_INVOLUTORY, 'HI'), 'LN');
+  assert.equal(C.hillApply(C.HILL_INVOLUTORY, 'LN'), 'HI');
+});
