@@ -4,55 +4,36 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Involution Studio is a lightweight educational hub for exploring involution transforms - cryptographic operations that return to the original state when applied twice (f(f(x)) = x). Part of the "生成AIで作るセキュリティツール100" (100 Security Tools Created with Generative AI) project.
+Involution Studio is a lightweight educational hub for exploring involution transforms - operations that return to the original state when applied twice (f(f(x)) = x). Part of the "生成AIで作るセキュリティツール100" (100 Security Tools with Generative AI) project, Day051.
 
 **Live demo**: https://ipusiron.github.io/involution-studio/
 
 ## Development Commands
 
-This is a static site with no build process:
+Static site with no build process and no dependencies.
 
 ```bash
-# Serve locally (any static server)
-python -m http.server 8000
-# or
-npx serve .
+npm test                    # node --test (Node.js 22+), no dependencies
+python -m http.server 8000  # serve locally (index.html also works from file://)
 ```
 
 ## Code Architecture
 
-### File Structure
-- **index.html** - Main HTML with 4 tab panels (基礎/換字式/転置式/ビット反転式), accordion UI, and inline demo markup
-- **script.js** - All demo logic, event handlers, theme toggle, and state management
-- **styles.css** - CSS variables for dark/light themes, responsive layout, accordion/tab styling
+- `index.html` - 4 tab panels (basics / substitution / transposition / bitwise) with accordions. No `style` attributes, no inline scripts or handlers. Static text has `data-i18n` keys whose Japanese text must equal the dictionary (tested)
+- `script.js` - DOM layer only. Each demo keeps one state object and redraws from it with a `render()` function; `renders` are all re-run on language switch
+- `js/involution-core.js` - pure logic (`globalThis.InvolutionCore`): `atbash` (keeps case and non-letters), `rot13`, `rot47`, `reverse` and `swapPairs` (by code point), `transpose`, `bitNot`, `parseByteInput` (char U+0000–U+00FF or decimal 0–255), `byteGlyph`, `parseIntIn`, Feistel (`feistelF`, `feistelRound`, `feistelHalf`, `feistelSteps`)
+- `js/messages.js` - Japanese and English dictionaries with the same keys (`InvolutionMessages.t(key, vars, lang)`)
+- `js/i18n.js` - language detection (`?lang=` → saved → browser) and `data-i18n` replacement
+- `js/theme-init.js` / `js/theme.js` - theme follows the OS until toggled; localStorage access is always in `try`
+- `styles.css` - color tokens on `:root`, dark via `prefers-color-scheme` and `[data-theme="dark"]` (same values)
 
-### Key Patterns
+### Feistel demo
 
-**Tab System**: Uses `aria-controls` to link buttons to panels. `activateTab(id)` toggles the `active` class.
-
-**Accordion**: Each `.accordion-item` has a header button with `aria-expanded` that toggles `.accordion-content.active`.
-
-**Demo State**: Each demo maintains local state (e.g., `currentMatrix`, `feistelState`) and updates DOM via dedicated display functions.
-
-**Input Sanitization**: All user inputs are sanitized via:
-- `sanitizeText()` for HTML encoding
-- Regex patterns to strip dangerous characters (`/[<>"'&]/g`)
-- `maxlength` and `pattern` attributes on inputs
-
-### Demo Implementations (script.js)
-
-| Demo | Functions | State |
-|------|-----------|-------|
-| Atbash | `transformAtbash()`, `clearAtbash()` | Stateless |
-| String Reverse | `reverseString()`, `clearReverse()` | Stateless |
-| Pair Swap | `swapPairs()`, `clearPairs()` | Stateless |
-| Matrix Transpose | `transposeMatrix()`, `displayMatrix()`, `resetMatrix()` | `currentMatrix`, `transposeCount` |
-| Bitwise NOT | `flipBits()`, `clearBitwise()` | Stateless |
-| Feistel | `feistelRound()`, `displayFeistelState()`, `resetFeistel()` | `feistelState` object |
+`feistelSteps(value, keys)` returns all 10 steps: 4 encryption rounds (L, R) → (R, L ⊕ F(R, k)), swap, 4 rounds on the same circuit with the keys reversed, swap. The toy F is `((R + k) % 16) ^ (R >> 2)` on 4-bit halves. Do not claim that repeating rounds with the same key returns to the original (only 50 of 4096 do; tested).
 
 ## Hub Architecture
 
-This repo serves as a **hub** linking to dedicated tools for deeper exploration:
+This repo links to dedicated tools for deeper exploration:
 - ROT13 Encoder: https://ipusiron.github.io/rot13-encoder/
 - QuickROT47: https://ipusiron.github.io/quick-rot47/
 - Columnar CipherLab: https://ipusiron.github.io/columnar-cipherlab/
@@ -61,7 +42,17 @@ Keep this repository lightweight. Heavy implementations belong in separate tool 
 
 ## Security Considerations
 
-- CSP in `<meta>` tag restricts `script-src 'self'` and `connect-src 'none'`
-- No inline event handlers (all via `addEventListener` in script.js)
-- External links use `rel="noopener noreferrer"`
-- Input validation with maxlength, pattern attributes, and runtime sanitization
+- CSP in `<meta>`: `default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'` (no `unsafe-inline`)
+- All output is built with DOM APIs and `textContent` (no `innerHTML`; tested)
+- External links use `rel="noopener noreferrer"`; referrer policy is `no-referrer`
+
+## Tests
+
+- `test/core.test.js` - round trips over ASCII/Japanese/emoji, known answers, all 256 NOT values, Feistel steps for 256 values × 46 key sets, half round for all 4096
+- `test/html.test.js` - CSP, ARIA (tabs, accordions), labels, dictionary agreement, ids used by script.js, no innerHTML/style writes, guarded localStorage
+- `test/contrast.test.js` - text 4.5:1 and field borders 3:1 in light and dark, 44px controls, 16px inputs
+- `test/messages.test.js`, `test/i18n.test.js` - dictionaries and language selection
+- `test/readme.test.js` - both READMEs (same headings), YAML structure, example and Feistel tables recomputed from the core, directory tree, images (4 screenshots each)
+- `test/format.test.js` - line length, LF, no control characters
+
+README numbers are recomputed by tests — update them from the core, not by hand. README states only what is true for the current version. Screenshots are taken with `business/research/try100_audit/impl/shots/day051_shots.py` in the ipusiron-work repository.
