@@ -239,6 +239,7 @@ involution-studio/
 ├── test/                              # Automated tests (node:test)
 │   ├── contrast.test.js               # Color contrast and control sizes
 │   ├── core.test.js                   # Core (round trips, known answers, Feistel)
+│   ├── explore.test.js                # Core (order, checker, Enigma, reversal units, XOR)
 │   ├── format.test.js                 # Line length and line endings
 │   ├── html.test.js                   # CSP, ARIA, labels and agreement with the dictionary
 │   ├── i18n.test.js                   # Language selection

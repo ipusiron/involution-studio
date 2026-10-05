@@ -278,6 +278,7 @@ involution-studio/
 ├── test/                              # 自動テスト（node:test）
 │   ├── contrast.test.js               # 配色のコントラスト、操作要素の大きさ
 │   ├── core.test.js                   # 計算部（往復・既知解答・Feistel）
+│   ├── explore.test.js                # 計算部（位数・判定器・エニグマ・反転の単位・XOR）
 │   ├── format.test.js                 # 行の長さ、改行コード
 │   ├── html.test.js                   # CSP、ARIA、ラベル、辞書との一致
 │   ├── i18n.test.js                   # 言語の選択
