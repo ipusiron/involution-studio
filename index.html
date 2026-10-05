@@ -229,6 +229,109 @@
             </div>
           </div>
         </article>
+
+        <article class="accordion-item">
+          <h3 class="accordion-heading">
+            <button type="button" class="accordion-header" id="acc-checker-btn" aria-expanded="false" aria-controls="acc-checker">
+              <span data-i18n="checker.title">インボリューション判定器</span><span class="accordion-icon" aria-hidden="true">▼</span>
+            </button>
+          </h3>
+          <div class="accordion-content" id="acc-checker" role="region" aria-labelledby="acc-checker-btn" hidden>
+            <p data-i18n="checker.body">A〜Zの行き先を順に並べた26文字の換字表を入れると、2回適用して元に戻るか（インボリューションか）を判定し、自分自身に移る文字（不動点）、入れ替わる組、3文字以上の巡回、元に戻るまでの回数を示します。</p>
+            <div class="demo">
+              <div class="sample-row">
+                <span class="note" data-i18n="checker.presets">例を入れる</span>
+                <button type="button" class="btn small" data-preset="atbash" data-i18n="checker.pAtbash">Atbash</button>
+                <button type="button" class="btn small" data-preset="rot13" data-i18n="checker.pRot13">ROT13</button>
+                <button type="button" class="btn small" data-preset="caesar3" data-i18n="checker.pCaesar3">シーザー（3ずらし）</button>
+                <button type="button" class="btn small" data-preset="beaufortA" data-i18n="checker.pBeaufortA">Beaufort（鍵A）</button>
+                <button type="button" class="btn small" data-preset="beaufortB" data-i18n="checker.pBeaufortB">Beaufort（鍵B）</button>
+                <button type="button" class="btn small" data-preset="ukwB" data-i18n="checker.pUkwB">エニグマの反転円盤B</button>
+                <button type="button" class="btn small" data-preset="rotorI" data-i18n="checker.pRotorI">エニグマのローターI</button>
+                <button type="button" class="btn small" data-preset="random" data-i18n="checker.pRandom">ランダムな対合</button>
+                <button type="button" class="btn small" data-preset="randomFree" data-i18n="checker.pRandomFree">不動点のないランダムな対合</button>
+              </div>
+              <label class="field-label" for="checker-input" data-i18n="checker.input">換字表（A〜Zの行き先を順に26文字）</label>
+              <input type="text" id="checker-input" class="text-input mono" value="ZYXWVUTSRQPONMLKJIHGFEDCBA" maxlength="60" autocomplete="off" spellcheck="false">
+              <div class="btn-row">
+                <button type="button" class="btn primary" id="checker-run" data-i18n="checker.run">判定する</button>
+              </div>
+              <p class="error" id="checker-error" role="alert" hidden></p>
+              <p class="status" id="checker-result" aria-live="polite"></p>
+              <dl class="detail">
+                <dt data-i18n="checker.fixed">自分自身に移る文字（不動点）</dt>
+                <dd class="mono" id="checker-fixed"></dd>
+                <dt data-i18n="checker.pairs">入れ替わる組</dt>
+                <dd><ul class="pair-list mono" id="checker-pairs"></ul></dd>
+                <dt data-i18n="checker.longer">3文字以上の巡回</dt>
+                <dd class="mono" id="checker-longer"></dd>
+              </dl>
+              <p class="note" data-i18n="checker.count" data-i18n-vars="all:532,985,208,200,576;free:7,905,853,580,625">26文字の並べ替え（26!通り）のうち、インボリューションは532,985,208,200,576通り、そのうち不動点のないものは7,905,853,580,625通りです。</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="accordion-item">
+          <h3 class="accordion-heading">
+            <button type="button" class="accordion-header" id="acc-enigma-btn" aria-expanded="false" aria-controls="acc-enigma">
+              <span data-i18n="enigma.title">エニグマの反転円盤</span><span class="accordion-icon" aria-hidden="true">▼</span>
+            </button>
+          </h3>
+          <div class="accordion-content" id="acc-enigma" role="region" aria-labelledby="acc-enigma-btn" hidden>
+            <p data-i18n="enigma.body1">エニグマでは、キーを押すたびにローターが1つ進み、電流がローターを通って反転円盤で折り返し、別の道でローターを戻ってきます。反転円盤は26文字を13組に結んでいるので、どの位置でも、暗号化は13組の入れ替えになります。</p>
+            <p data-i18n="enigma.body2">そのため、同じ設定で暗号文を打てば平文に戻り、暗号化と復号が同じ操作になります。その代わり、どの文字も自分自身には暗号化されません。これが解読の手がかりになる弱点にもなりました（Crypto Museum）。</p>
+            <p class="note" data-i18n="enigma.toy">このデモは、ローター1枚（Enigma IのローターI）と反転円盤（UKW-B）だけの簡易版です。実機は3枚のローター、リング設定、プラグボードを持ちますが、反転円盤があるので、どの位置でも不動点のないインボリューションになる点は同じです。</p>
+            <div class="demo">
+              <div class="field-row">
+                <div class="field">
+                  <label class="field-label" for="enigma-start" data-i18n="enigma.start">ローターの開始位置</label>
+                  <select id="enigma-start"></select>
+                </div>
+              </div>
+              <label class="field-label" for="enigma-input" data-i18n="demo.text">テキスト</label>
+              <input type="text" id="enigma-input" class="text-input" value="HELLO WORLD" maxlength="200" autocomplete="off" spellcheck="false">
+              <div class="btn-row">
+                <button type="button" class="btn primary" id="enigma-run" data-i18n="enigma.run">暗号化</button>
+                <button type="button" class="btn" id="enigma-again" data-i18n="enigma.again" disabled>結果を同じ開始位置でもう一度</button>
+                <button type="button" class="btn" id="enigma-clear" data-i18n="demo.clear">クリア</button>
+              </div>
+              <p class="result-label" id="enigma-result-label" data-i18n="demo.result">結果</p>
+              <output class="result" id="enigma-result" aria-labelledby="enigma-result-label"></output>
+              <p class="status" id="enigma-status" aria-live="polite"></p>
+              <p class="table-label" id="enigma-map-label"></p>
+              <div class="map-grid" id="enigma-map"></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="accordion-item">
+          <h3 class="accordion-heading">
+            <button type="button" class="accordion-header" id="acc-reciprocal-btn" aria-expanded="false" aria-controls="acc-reciprocal">
+              <span data-i18n="reciprocal.title">ほかの相反暗号（try100）</span><span class="accordion-icon" aria-hidden="true">▼</span>
+            </button>
+          </h3>
+          <div class="accordion-content" id="acc-reciprocal" role="region" aria-labelledby="acc-reciprocal-btn" hidden>
+            <p data-i18n="reciprocal.lead">暗号化と復号が同じ操作になる暗号（相反暗号）は、ほかにもあります。try100の各ツールで試せます。</p>
+            <div class="callout">
+              <p data-i18n="reciprocal.beaufort">Beaufort暗号は、鍵の文字kから平文の文字pを引いたc = k − p（mod 26）で暗号化します。復号もp = k − cと同じ式なので、鍵の文字ごとにインボリューションです。鍵の文字がA・C・E・…・Yのときは、2文字が自分自身に移ります（判定器の「Beaufort（鍵A）」で確かめられます）。</p>
+              <div class="actions">
+                <a class="link-btn" href="https://ipusiron.github.io/beaufort-cipherlab/" target="_blank" rel="noopener noreferrer" data-i18n="reciprocal.beaufortLink">🔗 Beaufort CipherLab</a>
+              </div>
+            </div>
+            <div class="callout">
+              <p data-i18n="reciprocal.hill">Hill暗号は、文字の組を行列で変換します。A² ≡ I（mod 26）となる自己逆の行列、たとえばA = [[3, 2], [9, 23]]を鍵にすると、暗号化と復号が同じ行列になります（行列式は25で、26と互いに素）。</p>
+              <div class="actions">
+                <a class="link-btn" href="https://ipusiron.github.io/hill-cipherlab/" target="_blank" rel="noopener noreferrer" data-i18n="reciprocal.hillLink">🔗 Hill CipherLab</a>
+              </div>
+            </div>
+            <div class="callout">
+              <p data-i18n="reciprocal.mirror">Mirror CipherLabでは、文字順の反転と字形の鏡像を同時に体験できます。どちらも、2回行うと元に戻ります。</p>
+              <div class="actions">
+                <a class="link-btn" href="https://ipusiron.github.io/mirror-cipherlab/" target="_blank" rel="noopener noreferrer" data-i18n="reciprocal.mirrorLink">🔗 Mirror CipherLab</a>
+              </div>
+            </div>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -378,6 +481,53 @@
               <p class="error" id="not-error" role="alert" hidden></p>
               <div class="bit-pair" id="not-display"></div>
               <p class="status" id="not-status" aria-live="polite"></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="accordion-item">
+          <h3 class="accordion-heading">
+            <button type="button" class="accordion-header" id="acc-xor-btn" aria-expanded="false" aria-controls="acc-xor">
+              <span data-i18n="xor.title">XOR（ストリーム暗号）</span><span class="accordion-icon" aria-hidden="true">▼</span>
+            </button>
+          </h3>
+          <div class="accordion-content" id="acc-xor" role="region" aria-labelledby="acc-xor-btn" hidden>
+            <p data-i18n="xor.body">XORは、同じ値を2回XORすると元に戻ります（(P ⊕ K) ⊕ K = P）。ストリーム暗号は、平文に鍵の列をXORして暗号化し、同じ鍵の列をもう一度XORして復号します。鍵を決めれば、暗号化そのものがインボリューションです。</p>
+            <p data-i18n="xor.reuse">そのため、同じ鍵の列を2つの平文に使うと、2つの暗号文のXORから鍵が消え、平文どうしのXORが残ります（C1 ⊕ C2 = P1 ⊕ P2）。ワンタイムパッドで鍵を使い回してはいけない理由です。</p>
+            <div class="demo">
+              <label class="field-label" for="xor-p1" data-i18n="xor.p1">平文P1</label>
+              <input type="text" id="xor-p1" class="text-input" value="ATTACK AT DAWN" maxlength="40" autocomplete="off" spellcheck="false">
+              <div class="btn-row">
+                <button type="button" class="btn primary" id="xor-run" data-i18n="xor.run">暗号化（P1 ⊕ K）</button>
+                <button type="button" class="btn" id="xor-again" data-i18n="xor.again" disabled>暗号文にもう一度XOR</button>
+                <button type="button" class="btn" id="xor-newkey" data-i18n="xor.newKey">鍵を作り直す</button>
+              </div>
+              <dl class="detail">
+                <dt data-i18n="xor.key">鍵K（使う部分、16進数）</dt>
+                <dd class="mono wrap" id="xor-key"></dd>
+                <dt data-i18n="xor.cipher">暗号文C1（16進数）</dt>
+                <dd class="mono wrap" id="xor-cipher"></dd>
+                <dt data-i18n="xor.plain">C1 ⊕ K（UTF-8として読む）</dt>
+                <dd class="mono wrap" id="xor-plain"></dd>
+              </dl>
+              <label class="field-label" for="xor-p2" data-i18n="xor.p2">平文P2（同じ鍵を使い回す）</label>
+              <input type="text" id="xor-p2" class="text-input" value="RETREAT AT NINE" maxlength="40" autocomplete="off" spellcheck="false">
+              <div class="btn-row">
+                <button type="button" class="btn" id="xor-two" data-i18n="xor.two">同じ鍵でP2も暗号化して比べる</button>
+              </div>
+              <dl class="detail">
+                <dt data-i18n="xor.c2">暗号文C2（16進数）</dt>
+                <dd class="mono wrap" id="xor-c2"></dd>
+                <dt data-i18n="xor.cx">C1 ⊕ C2</dt>
+                <dd class="mono wrap" id="xor-cx"></dd>
+                <dt data-i18n="xor.px">P1 ⊕ P2</dt>
+                <dd class="mono wrap" id="xor-px"></dd>
+              </dl>
+              <p class="status" id="xor-status" aria-live="polite"></p>
+              <p class="note" data-i18n="xor.note">UTF-8のバイト列にXORします。鍵はブラウザーの乱数（crypto.getRandomValues）で作り、外へ送りません。</p>
+              <div class="actions">
+                <a class="link-btn" href="https://ipusiron.github.io/otp-animation/" target="_blank" rel="noopener noreferrer" data-i18n="xor.link">🔗 OTP Animation</a>
+              </div>
             </div>
           </div>
         </article>

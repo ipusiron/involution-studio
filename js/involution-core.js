@@ -352,7 +352,7 @@
   }
 
   // ===== XOR（ストリーム暗号） =====
-  const KEY_BYTES = 128;
+  const KEY_BYTES = 256;
   const utf8 = (text) => new TextEncoder().encode(String(text));
   const toHex = (bytes) => Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join(' ');
 
