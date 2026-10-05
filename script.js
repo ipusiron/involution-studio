@@ -186,6 +186,65 @@
   });
   renders.push(renderChecker);
 
+  // 共役: g⁻¹ ∘ h ∘ g（または g⁻¹ で戻らない h ∘ g）を作って判定器に入れる
+  const conj = { message: null, error: null };
+
+  function renderConj() {
+    const error = $('conj-error');
+    const e = conj.error;
+    error.hidden = !e;
+    const detail = e ? t(`checker.err.${e.error}`, { n: e.length, list: (e.missing || []).join(', ') }) : '';
+    error.textContent = e ? t(e.which === 'g' ? 'conj.errG' : 'conj.errH', { detail }) : '';
+    const result = $('conj-result');
+    result.textContent = conj.message ? conj.message.map(([key, vars]) => t(key, vars)).join(' ') : '';
+  }
+
+  function runConj(plain) {
+    const g = C.parseAlphabet($('conj-g').value);
+    const h = C.parseAlphabet($('conj-h').value);
+    conj.error = !g.ok ? { which: 'g', ...g } : !h.ok ? { which: 'h', ...h } : null;
+    conj.message = null;
+    if (!conj.error) {
+      const made = plain ? C.composeMaps(g.map, h.map) : C.conjugate(g.map, h.map);
+      checkerInput.value = C.mapToString(made);
+      runChecker();
+      if (plain) {
+        conj.message = [['conj.plainResult', {}]];
+      } else {
+        const hr = C.analyzePermutation(h.map);
+        const rr = C.analyzePermutation(made);
+        conj.message = hr.involution
+          ? [['conj.result', { hf: hr.fixed.length, hp: hr.pairs.length, rf: rr.fixed.length, rp: rr.pairs.length }]]
+          : [['conj.notInv', {}]];
+        if (made.every((v, i) => v === C.enigmaMapAt(0)[i])) conj.message.push(['conj.enigma', {}]);
+      }
+    }
+    renderConj();
+  }
+
+  $('conj-run').addEventListener('click', () => runConj(false));
+  $('conj-plain').addEventListener('click', () => runConj(true));
+  $('conj-random').addEventListener('click', () => {
+    const g = [...Array(26).keys()];
+    for (let i = 25; i > 0; i--) {
+      const j = randInt(i + 1);
+      [g[i], g[j]] = [g[j], g[i]];
+    }
+    $('conj-g').value = C.mapToString(g);
+    conj.message = null;
+    conj.error = null;
+    renderConj();
+  });
+  // g・h を書き換えたら、前の結果を消す
+  for (const id of ['conj-g', 'conj-h']) {
+    $(id).addEventListener('input', () => {
+      conj.message = null;
+      conj.error = null;
+      renderConj();
+    });
+  }
+  renders.push(renderConj);
+
   // ===== エニグマの簡易版（ローターI＋反転円盤B） =====
   const enigmaStart = $('enigma-start');
   for (let i = 0; i < 26; i++) {
@@ -202,6 +261,60 @@
   }
   const enigmaDemo = textDemo('enigma', (s) => C.enigma(s, Number(enigmaStart.value)).output, renderEnigmaMap);
   enigmaStart.addEventListener('change', () => enigmaDemo.reset());
+
+  // ===== 自己逆の Hill 行列（2×2、mod 26） =====
+  const hill = { A: C.HILL_INVOLUTORY, plain: null, once: null, twice: null, empty: false };
+  const fmtMatrix = (A) => `[[${A[0][0]}, ${A[0][1]}], [${A[1][0]}, ${A[1][1]}]]`;
+
+  function clearHill() {
+    hill.plain = null;
+    hill.once = null;
+    hill.twice = null;
+    hill.empty = false;
+  }
+
+  function renderHill() {
+    $('hill-matrix').textContent = t('hill.matrix', { a: fmtMatrix(hill.A), sq: fmtMatrix(C.mulMod(hill.A, hill.A, 26)), det: C.det2(hill.A, 26) });
+    $('hill-plain').textContent = hill.plain || '';
+    $('hill-once').textContent = hill.once || '';
+    $('hill-twice').textContent = hill.twice || '';
+    $('hill-again').disabled = !hill.once;
+    const status = $('hill-status');
+    status.textContent = hill.empty ? t('hill.empty') : hill.twice ? t('hill.back') : '';
+    status.classList.toggle('ok', Boolean(hill.twice) && hill.twice === hill.plain);
+  }
+
+  $('hill-run').addEventListener('click', () => {
+    clearHill();
+    const plain = C.hillNormalize($('hill-input').value).text;
+    if (plain === '') hill.empty = true;
+    else {
+      hill.plain = plain;
+      hill.once = C.hillApply(hill.A, plain);
+    }
+    renderHill();
+  });
+  $('hill-again').addEventListener('click', () => {
+    if (hill.once) hill.twice = C.hillApply(hill.A, hill.once);
+    renderHill();
+  });
+  // 単位行列でない自己逆の行列から1つ選ぶ（数え上げは初めて押したときに1回だけ）
+  $('hill-random').addEventListener('click', () => {
+    const list = C.hill2Census().involutory.filter((A) => !(A[0][0] === 1 && A[0][1] === 0 && A[1][0] === 0 && A[1][1] === 1));
+    hill.A = list[randInt(list.length)];
+    clearHill();
+    renderHill();
+  });
+  $('hill-example').addEventListener('click', () => {
+    hill.A = C.HILL_INVOLUTORY;
+    clearHill();
+    renderHill();
+  });
+  $('hill-input').addEventListener('input', () => {
+    clearHill();
+    renderHill();
+  });
+  renders.push(renderHill);
 
   // 文字反転: 単位（コードポイント・コード単位・書記素）を選べる。適用した回ごとの「前→後」を並べる（多すぎるときは最後の8回）
   const unitSelect = $('reverse-unit');
@@ -257,13 +370,17 @@
     error.textContent = order.error ? t(`order.err.${order.error}`) : '';
     const result = $('order-result');
     const list = $('order-states');
+    const cyclesLine = $('order-cycles');
+    const formulaLine = $('order-formula');
     result.classList.remove('ok');
+    cyclesLine.hidden = true;
+    formulaLine.hidden = true;
     if (!order.result) {
       result.textContent = '';
       list.replaceChildren();
       return;
     }
-    const { order: n, states } = order.result;
+    const { order: n, states, kind, cards } = order.result;
     if (n === null) result.textContent = t('order.resultNone', { n: states.length - 1 });
     else if (n === 1) result.textContent = t('order.resultSame');
     else result.textContent = t(n === 2 ? 'order.resultInv' : 'order.resultNot', { n });
@@ -272,14 +389,34 @@
     const shown = states.length > 14 ? [...states.slice(0, 6).map((s, i) => [i, s]), null, ...states.slice(-6).map((s, i) => [states.length - 6 + i, s])]
       : states.map((s, i) => [i, s]);
     list.replaceChildren(...shown.map((x) => el('li', null, x ? t('order.state', { n: x[0], s: x[1] }) : t('order.skip', { from: 6, to: states.length - 7 }))));
+    // パーフェクトシャッフルは、札の位置の巡回と論文の式も示す（同じ文字があると、文字列としては早く戻ることがある）
+    if (kind === 'outShuffle' || kind === 'inShuffle') {
+      const out = kind === 'outShuffle';
+      const k = C.shuffleOrder(cards, out);
+      const cycles = C.cyclesOf(C.shufflePositions(cards, out)).map((c) => `(${c.map((i) => i + 1).join(' ')})`).join('');
+      cyclesLine.textContent = t('order.cycles', { cycles, k }) + (n !== k ? ` ${t('order.repeatNote', { n, k })}` : '');
+      cyclesLine.hidden = false;
+      if (!(out && cards === 2)) {
+        formulaLine.textContent = t(out ? 'order.formulaOut' : 'order.formulaIn', { m: out ? cards - 1 : cards + 1, k });
+        formulaLine.hidden = false;
+      }
+    }
   }
+
+  // シャッフルの位数の表（2〜52枚、論文の式で計算）
+  $('order-table').replaceChildren(...Array.from({ length: 26 }, (_, i) => {
+    const cards = (i + 1) * 2;
+    const tr = el('tr');
+    tr.append(el('td', null, String(cards)), el('td', 'mono', String(C.shuffleOrder(cards, true))), el('td', 'mono', String(C.shuffleOrder(cards, false))));
+    return tr;
+  }));
 
   $('order-run').addEventListener('click', () => {
     const kind = orderKind.value;
     const text = $('order-input').value;
     const k = kind === 'caesar' ? C.parseIntIn($('order-k').value, 25) : 0;
     order.error = kind === 'caesar' && !k ? 'k' : C.orderInputError(kind, text);
-    order.result = order.error ? null : C.orderOf(C.orderTransform(kind, k), text);
+    order.result = order.error ? null : { ...C.orderOf(C.orderTransform(kind, k), text), kind, cards: C.codePoints(text).length };
     renderOrder();
   });
   // 変換の種類を変えたら、前の結果を消す

@@ -99,6 +99,24 @@
               <p class="error" id="order-error" role="alert" hidden></p>
               <p class="status" id="order-result" aria-live="polite"></p>
               <ul class="steps mono" id="order-states"></ul>
+              <p class="note mono wrap" id="order-cycles" hidden></p>
+              <p class="note" id="order-formula" hidden></p>
+              <details class="order-table">
+                <summary data-i18n="order.tableTitle">パーフェクトシャッフルの位数の表（2〜52枚）</summary>
+                <div class="table-wrap">
+                  <table class="trace">
+                    <thead>
+                      <tr>
+                        <th scope="col" data-i18n="order.colCards">枚数</th>
+                        <th scope="col" data-i18n="order.colOut">アウト</th>
+                        <th scope="col" data-i18n="order.colIn">イン</th>
+                      </tr>
+                    </thead>
+                    <tbody id="order-table"></tbody>
+                  </table>
+                </div>
+                <p class="note" data-i18n="order.tableNote">アウトシャッフルの位数は2の法（枚数−1）での位数、インシャッフルは法（枚数＋1）での位数です。52枚は、インシャッフルを26回くり返すと順番が逆になります（Diaconis・Graham・Kantor, 1983）。</p>
+              </details>
             </div>
           </div>
         </article>
@@ -267,6 +285,21 @@
                 <dd class="mono" id="checker-longer"></dd>
               </dl>
               <p class="note" data-i18n="checker.count" data-i18n-vars="all:532,985,208,200,576;free:7,905,853,580,625">26文字の並べ替え（26!通り）のうち、インボリューションは532,985,208,200,576通り、そのうち不動点のないものは7,905,853,580,625通りです。</p>
+              <div class="half">
+                <h4 data-i18n="conj.title">共役で対合を作る（エニグマが2回で戻る理由）</h4>
+                <p data-i18n="conj.body">エニグマの電流は、ローターgを通り、反転円盤hで折り返し、gを逆向きに戻ります（c → g⁻¹(h(g(c)))）。hが対合なら、2回通すと(g⁻¹hg)(g⁻¹hg) = g⁻¹h²g = 恒等になるので、どんな並べ替えgで挟んでも対合のままです。不動点の数と組の数も、hと同じになります。</p>
+                <label class="field-label" for="conj-g" data-i18n="conj.g">並べ替えg（26文字）</label>
+                <input type="text" id="conj-g" class="text-input mono" value="EKMFLGDQVZNTOWYHXUSPAIBRCJ" maxlength="60" autocomplete="off" spellcheck="false">
+                <label class="field-label" for="conj-h" data-i18n="conj.h">対合h（26文字）</label>
+                <input type="text" id="conj-h" class="text-input mono" value="YRUHQSLDPXNGOKMIEBFZCWVJAT" maxlength="60" autocomplete="off" spellcheck="false">
+                <div class="btn-row">
+                  <button type="button" class="btn primary" id="conj-run" data-i18n="conj.run">g⁻¹ ∘ h ∘ gを判定器に入れる</button>
+                  <button type="button" class="btn" id="conj-plain" data-i18n="conj.plain">h ∘ g（戻らない）を判定器に入れる</button>
+                  <button type="button" class="btn" id="conj-random" data-i18n="conj.random">gをランダムにする</button>
+                </div>
+                <p class="error" id="conj-error" role="alert" hidden></p>
+                <p class="status" id="conj-result" aria-live="polite"></p>
+              </div>
             </div>
           </div>
         </article>
@@ -322,6 +355,29 @@
               <p data-i18n="reciprocal.hill">Hill暗号は、文字の組を行列で変換します。A² ≡ I（mod 26）となる自己逆の行列、たとえばA = [[3, 2], [9, 23]]を鍵にすると、暗号化と復号が同じ行列になります（行列式は25で、26と互いに素）。</p>
               <div class="actions">
                 <a class="link-btn" href="https://ipusiron.github.io/hill-cipherlab/" target="_blank" rel="noopener noreferrer" data-i18n="reciprocal.hillLink">🔗 Hill CipherLab</a>
+              </div>
+              <div class="demo">
+                <div class="btn-row">
+                  <button type="button" class="btn" id="hill-random" data-i18n="hill.random">自己逆の行列をランダムに作る</button>
+                  <button type="button" class="btn" id="hill-example" data-i18n="hill.example">例の行列に戻す</button>
+                </div>
+                <p class="mono wrap" id="hill-matrix" aria-live="polite"></p>
+                <label class="field-label" for="hill-input" data-i18n="demo.text">テキスト</label>
+                <input type="text" id="hill-input" class="text-input" value="ATTACK AT DAWN" maxlength="200" autocomplete="off" spellcheck="false">
+                <div class="btn-row">
+                  <button type="button" class="btn primary" id="hill-run" data-i18n="demo.run">変換</button>
+                  <button type="button" class="btn" id="hill-again" data-i18n="demo.again" disabled>結果をもう一度変換</button>
+                </div>
+                <dl class="detail">
+                  <dt data-i18n="hill.plain">英字だけを大文字にした平文（奇数個ならXを足す）</dt>
+                  <dd class="mono wrap" id="hill-plain"></dd>
+                  <dt data-i18n="hill.once">1回目</dt>
+                  <dd class="mono wrap" id="hill-once"></dd>
+                  <dt data-i18n="hill.twice">2回目</dt>
+                  <dd class="mono wrap" id="hill-twice"></dd>
+                </dl>
+                <p class="status" id="hill-status" aria-live="polite"></p>
+                <p class="note" data-i18n="hill.count" data-i18n-vars="invertible:157,248;involutory:736">2×2の行列（mod 26）のうち、可逆なものは157,248個、そのうち自己逆（A² ≡ I）は736個です（全部数えた値）。</p>
               </div>
             </div>
             <div class="callout">
