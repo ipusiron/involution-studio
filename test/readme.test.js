@@ -13,7 +13,12 @@ const DOCS = {
     file: 'README.md', switcher: '[English](README.en.md) · 日本語', day: '**Day051 - 生成AIで作るセキュリティツール100**',
     shots: /^assets\/screenshot\d*\.png$/,
     sec: { tech: '🔬 技術的な説明', tree: '📁 ディレクトリー構造', about: '🛠️ このツールについて' },
-    head: { examples: '変換', feistel: '手順' },
+    head: { examples: '| 変換 | 例（1回目） |', feistel: '| 手順 |', order: '| 変換 | 入力 |', checker: '| 換字表 |' },
+    orderNames: { 'シーザー（3ずらし）': ['caesar', 3], ROT13: ['rot13', 0], 'パーフェクトシャッフル（アウト）': ['outShuffle', 0], 'パーフェクトシャッフル（イン）': ['inShuffle', 0] },
+    presets: { Atbash: 'atbash', ROT13: 'rot13', 'Beaufort（鍵A）': 'beaufortA', 'Beaufort（鍵B）': 'beaufortB', 'エニグマの反転円盤B': 'ukwB', 'シーザー（3ずらし）': 'caesar3',
+      'エニグマのローターI': 'rotorI' },
+    verdict: { yes: '対合', no: '対合でない', none: 'なし' },
+    claims2: ['532,985,208,200,576通り', '7,905,853,580,625通り', '26/gcd(k, 26)', 'A = [[3, 2], [9, 23]]', '開始位置A・入力HELLOWORLDの暗号文はFJGANRHBSE'],
     names: { Atbash: 'atbash', ROT13: 'rot13', ROT47: 'rot47', '文字反転': 'reverse', 'ペア交換': 'pairs', 'ビット反転': 'not' },
     claims: ['(1010, 0000)＝160', '元の170に戻る', '入力値170（10101010）、鍵5・3・12・9', '4096通りのうち戻るのは50通り',
       'アウトシャッフルなら8回', 'インシャッフルなら52回', 'K16からK1の逆順'],
@@ -23,7 +28,14 @@ const DOCS = {
     file: 'README.en.md', switcher: 'English · [日本語](README.md)', day: '**Day051 - 100 Security Tools with Generative AI**',
     shots: /^assets\/en\/screenshot\d*\.png$/,
     sec: { tech: '🔬 Technical notes', tree: '📁 Directory structure', about: '🛠️ About this tool' },
-    head: { examples: 'Transform', feistel: 'Step' },
+    head: { examples: '| Transform | Example (first application) |', feistel: '| Step |', order: '| Transform | Input |', checker: '| Substitution table |' },
+    orderNames: { 'Caesar (shift 3)': ['caesar', 3], ROT13: ['rot13', 0], 'Perfect shuffle (out)': ['outShuffle', 0],
+      'Perfect shuffle (in)': ['inShuffle', 0] },
+    presets: { Atbash: 'atbash', ROT13: 'rot13', 'Beaufort (key A)': 'beaufortA', 'Beaufort (key B)': 'beaufortB', 'Enigma reflector B': 'ukwB',
+      'Caesar (shift 3)': 'caesar3', 'Enigma rotor I': 'rotorI' },
+    verdict: { yes: 'Involution', no: 'Not an involution', none: 'none' },
+    claims2: ['532,985,208,200,576 are involutions', '7,905,853,580,625 of those', '26/gcd(k, 26)', 'A = [[3, 2], [9, 23]]',
+      'the input HELLOWORLD encrypts to FJGANRHBSE'],
     names: { Atbash: 'atbash', ROT13: 'rot13', ROT47: 'rot47', 'String reversal': 'reverse', 'Pair swap': 'pairs', 'Bitwise NOT': 'not' },
     claims: ['(1010, 0000) = 160', 'gives back the original 170', 'input value 170 (10101010) and the keys 5, 3, 12 and 9',
       'only 50 of the 4096 combinations', '8 out-shuffles', '52 in-shuffles', 'from K16 to K1'],
@@ -50,7 +62,7 @@ function section(text, heading) {
 
 function table(text, firstHeader) {
   const lines = text.split('\n');
-  const start = lines.findIndex((l) => l.startsWith(`| ${firstHeader} |`));
+  const start = lines.findIndex((l) => l.startsWith(firstHeader));
   assert.ok(start >= 0, firstHeader);
   const rows = [];
   for (let i = start + 2; i < lines.length && lines[i].startsWith('|'); i++) rows.push(lines[i].split(' | ').map((c) => c.replace(/^\| ?| ?\|$/g, '').trim()));
@@ -181,6 +193,33 @@ for (const [lang, d] of Object.entries(DOCS)) {
     assert.ok(d.text.includes(lang === 'ja' ? '256通り×46組の鍵' : '256 values × 46 key sets'));
   });
 
+  test(`${d.file}: 位数の表・判定器の表・エニグマの例・対合の数は、計算部で計算し直した値と同じ`, () => {
+    const sec = section(d.text, d.sec.tech);
+    const orders = table(sec, d.head.order);
+    assert.equal(orders.length, 6);
+    for (const [name, input, times] of orders) {
+      const [kind, k] = d.orderNames[name];
+      assert.equal(C.orderOf(C.orderTransform(kind, k), input).order, Number(times), `${name} ${input}`);
+    }
+    const checks = table(sec, d.head.checker);
+    assert.equal(checks.length, 7);
+    for (const [name, verdict, fixed, pairs, order] of checks) {
+      const r = C.analyzePermutation(C.parseAlphabet(C.PRESETS[d.presets[name]]()).map);
+      assert.equal(verdict, r.involution ? d.verdict.yes : d.verdict.no, name);
+      assert.equal(fixed, r.fixed.length ? r.fixed.join(', ') : d.verdict.none, name);
+      assert.equal(Number(pairs), r.pairs.length, name);
+      assert.equal(Number(order), r.order, name);
+    }
+    for (const c of d.claims2) assert.ok(sec.includes(c), c);
+    assert.ok(sec.includes(C.ROTOR_I) && sec.includes(C.UKW_B));
+    assert.equal(C.enigma('HELLOWORLD', 0).output, 'FJGANRHBSE');
+    assert.equal(C.enigma('FJGANRHBSE', 0).output, 'HELLOWORLD');
+    assert.equal(C.involutionCount(26).toLocaleString('en-US'), '532,985,208,200,576');
+    assert.equal(C.fixedPointFreeCount(26).toLocaleString('en-US'), '7,905,853,580,625');
+    assert.deepEqual(C.mulMod(C.HILL_INVOLUTORY, C.HILL_INVOLUTORY, 26), [[1, 0], [0, 1]]);
+    assert.equal(C.det2(C.HILL_INVOLUTORY, 26), 25);
+  });
+
   test(`${d.file}: ディレクトリー構造にすべてのファイルとディレクトリーが載り、全行に説明がある`, () => {
     const block = section(d.text, d.sec.tree).match(/```\n([\s\S]*?)```/)[1];
     const lines = block.split('\n').filter((l) => l.trim()).slice(1);
@@ -202,16 +241,16 @@ for (const [lang, d] of Object.entries(DOCS)) {
 test('参考文献の URL は日英で同じ', () => {
   const urls = (d) => [...section(d.text, d.sec.tech).matchAll(/\]\((https:\/\/[^)\s]+(?:\([^)]*\)[^)\s]*)?)\)/g)].map((m) => m[1]);
   assert.deepEqual(urls(DOCS.en), urls(DOCS.ja));
-  assert.equal(urls(DOCS.ja).length, 4);
+  assert.equal(urls(DOCS.ja).length, 9);
 });
 
-test('画像: 参照はすべて実在する。スクリーンショットは日本語版が assets/、英語版が assets/en/ の4枚。どこからも参照しない画像は置かない', () => {
+test('画像: 参照はすべて実在する。スクリーンショットは日本語版が assets/、英語版が assets/en/ の6枚。どこからも参照しない画像は置かない', () => {
   const refs = {};
   for (const [lang, d] of Object.entries(DOCS)) {
     refs[lang] = [...d.text.matchAll(/!\[[^\]]*\]\((assets\/[^)]+)\)/g)].map((m) => m[1]);
     for (const r of refs[lang]) assert.ok(fs.existsSync(path.join(ROOT, r)), r);
     const shots = refs[lang].filter((r) => /screenshot/.test(r));
-    assert.equal(shots.length, 4, lang);
+    assert.equal(shots.length, 6, lang);
     for (const r of shots) {
       assert.match(r, d.shots, r);
       assert.ok(fs.statSync(path.join(ROOT, r)).size <= 300 * 1024, r);
