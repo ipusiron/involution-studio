@@ -1,625 +1,376 @@
-// Simple accessible tab switcher (no external deps)
-const tabButtons = Array.from(document.querySelectorAll('.tab-btn'));
-const tabpanels = Array.from(document.querySelectorAll('.tabpanel'));
+// Involution Studio - 画面の処理（DOM）。計算は js/involution-core.js、文言は js/messages.js に置く
+// 各デモは状態を1つ持ち、render() で状態から画面を描き直す（言語を切り替えたときも同じ関数で描き直す）
+(() => {
+  'use strict';
 
-function activateTab(id) {
-  tabButtons.forEach(btn => {
-    const isActive = btn.getAttribute('aria-controls') === id;
-    btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
-  });
-  tabpanels.forEach(p => {
-    p.classList.toggle('active', p.id === id);
-  });
-}
+  const C = globalThis.InvolutionCore;
+  const I18n = globalThis.InvolutionI18n;
+  const Theme = globalThis.InvolutionTheme;
+  const t = (key, vars) => globalThis.InvolutionMessages.t(key, vars);
+  const $ = (id) => document.getElementById(id);
+  const renders = [];
 
-tabButtons.forEach(btn => {
-  btn.addEventListener('click', () => activateTab(btn.getAttribute('aria-controls')));
-  btn.addEventListener('keydown', (e) => {
-    const idx = tabButtons.indexOf(btn);
-    if (e.key === 'ArrowRight') {
+  function el(tag, className, text) {
+    const e = document.createElement(tag);
+    if (className) e.className = className;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+
+  // ===== タブ（矢印キー・Home・End で移動、選んだタブだけ tabindex=0） =====
+  const tabs = [...document.querySelectorAll('.tab-btn')];
+
+  function selectTab(tab, focus) {
+    for (const b of tabs) {
+      const on = b === tab;
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+      b.tabIndex = on ? 0 : -1;
+      $(b.getAttribute('aria-controls')).hidden = !on;
+    }
+    if (focus) tab.focus();
+  }
+
+  tabs.forEach((b, i) => {
+    b.addEventListener('click', () => selectTab(b, false));
+    b.addEventListener('keydown', (e) => {
+      const target = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[e.key];
+      if (target === undefined) return;
       e.preventDefault();
-      const next = tabButtons[(idx + 1) % tabButtons.length];
-      next.focus(); next.click();
-    } else if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      const prev = tabButtons[(idx - 1 + tabButtons.length) % tabButtons.length];
-      prev.focus(); prev.click();
-    }
+      selectTab(tabs[(target + tabs.length) % tabs.length], true);
+    });
   });
-});
 
-// Theme toggle functionality
-const themeToggle = document.querySelector('.theme-toggle');
-const themeIcon = document.querySelector('.theme-icon');
-const htmlElement = document.documentElement;
-
-// Load saved theme from localStorage or default to dark
-const savedTheme = localStorage.getItem('theme') || 'dark';
-htmlElement.setAttribute('data-theme', savedTheme);
-updateThemeIcon(savedTheme);
-
-function updateThemeIcon(theme) {
-  themeIcon.textContent = theme === 'light' ? '🌙' : '☀️';
-}
-
-themeToggle.addEventListener('click', () => {
-  const currentTheme = htmlElement.getAttribute('data-theme');
-  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-  
-  htmlElement.setAttribute('data-theme', newTheme);
-  localStorage.setItem('theme', newTheme);
-  updateThemeIcon(newTheme);
-});
-
-// Accordion functionality
-const accordionHeaders = Array.from(document.querySelectorAll('.accordion-header'));
-
-accordionHeaders.forEach(header => {
-  header.addEventListener('click', () => {
-    const isExpanded = header.getAttribute('aria-expanded') === 'true';
-    const content = header.nextElementSibling;
-    
-    // Simply toggle the clicked accordion without affecting others
-    if (isExpanded) {
-      header.setAttribute('aria-expanded', 'false');
-      content.classList.remove('active');
-    } else {
-      header.setAttribute('aria-expanded', 'true');
-      content.classList.add('active');
-    }
-  });
-  
-  header.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      header.click();
-    }
-  });
-});
-
-// HTML sanitization utility
-function sanitizeText(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
-// Atbash cipher demo
-function transformAtbash() {
-  const inputElement = document.getElementById('atbash-input');
-  const input = inputElement.value.toUpperCase().replace(/[^A-Z\s]/g, ''); // Only allow A-Z and spaces
-  inputElement.value = input; // Update input field with sanitized value
-  const result = document.getElementById('atbash-result');
-  
-  // Reset all highlights
-  for (let i = 65; i <= 90; i++) {
-    const char = String.fromCharCode(i);
-    const mapElement = document.getElementById(`map-${char}`);
-    if (mapElement) {
-      mapElement.style.background = 'var(--card)';
-      mapElement.style.borderColor = 'var(--border)';
-    }
-  }
-  
-  let output = '';
-  const usedChars = new Set();
-  
-  for (let char of input) {
-    if (char >= 'A' && char <= 'Z') {
-      // A=0, Z=25 -> Z=0, A=25
-      const transformed = String.fromCharCode(25 - (char.charCodeAt(0) - 65) + 65);
-      output += transformed;
-      usedChars.add(char);
-    } else {
-      output += char; // Keep non-alphabetic characters as is
-    }
-  }
-  
-  // Highlight used characters
-  usedChars.forEach(char => {
-    const mapElement = document.getElementById(`map-${char}`);
-    if (mapElement) {
-      mapElement.style.background = 'var(--accent)';
-      mapElement.style.borderColor = 'var(--accent)';
-      mapElement.style.color = 'white';
-    }
-  });
-  
-  result.textContent = output;
-}
-
-function clearAtbash() {
-  document.getElementById('atbash-input').value = '';
-  document.getElementById('atbash-result').textContent = '';
-  
-  // Reset all highlights
-  for (let i = 65; i <= 90; i++) {
-    const char = String.fromCharCode(i);
-    const mapElement = document.getElementById(`map-${char}`);
-    if (mapElement) {
-      mapElement.style.background = 'var(--card)';
-      mapElement.style.borderColor = 'var(--border)';
-      mapElement.style.color = 'var(--text)';
-    }
-  }
-}
-
-// String reversal demo
-function reverseString() {
-  const inputElement = document.getElementById('reverse-input');
-  const input = inputElement.value.replace(/[<>"'&]/g, ''); // Remove potentially harmful characters
-  inputElement.value = input;
-  const result = document.getElementById('reverse-result');
-  const steps = document.getElementById('reverse-steps');
-  
-  const reversed = input.split('').reverse().join('');
-  result.textContent = reversed;
-  
-  if (input.length > 0) {
-    // Use textContent instead of innerHTML for safety
-    const stepText = `手順: "${input}" → "${reversed}"\nもう一度適用: "${reversed}" → "${input.split('').reverse().reverse().join('')}"`;
-    steps.textContent = stepText;
-  }
-}
-
-function clearReverse() {
-  document.getElementById('reverse-input').value = '';
-  document.getElementById('reverse-result').textContent = '';
-  document.getElementById('reverse-steps').innerHTML = '';
-}
-
-// Pair swap demo
-function swapPairs() {
-  const inputElement = document.getElementById('pair-input');
-  const input = inputElement.value.replace(/[<>"'&]/g, ''); // Remove potentially harmful characters
-  inputElement.value = input;
-  const result = document.getElementById('pair-result');
-  const visualization = document.getElementById('pair-visualization');
-  
-  let swapped = '';
-  let visualSteps = [];
-  
-  for (let i = 0; i < input.length; i += 2) {
-    if (i + 1 < input.length) {
-      // Swap pair
-      swapped += input[i + 1] + input[i];
-      visualSteps.push(`(${input[i]}${input[i + 1]} → ${input[i + 1]}${input[i]})`);
-    } else {
-      // Odd character, keep as is
-      swapped += input[i];
-      visualSteps.push(`(${input[i]} → ${input[i]})`);
-    }
-  }
-  
-  result.textContent = swapped;
-  
-  if (input.length > 0) {
-    // Create elements safely
-    visualization.innerHTML = '';
-    const div1 = document.createElement('div');
-    div1.style.color = 'var(--muted)';
-    div1.textContent = `ペア交換: ${visualSteps.join(' ')}`;
-    
-    const div2 = document.createElement('div');
-    div2.style.marginTop = '8px';
-    div2.style.color = 'var(--muted)';
-    div2.textContent = `もう一度適用すると元に戻る: "${swapped}" → "${input}"`;
-    
-    visualization.appendChild(div1);
-    visualization.appendChild(div2);
-  }
-}
-
-function clearPairs() {
-  document.getElementById('pair-input').value = '';
-  document.getElementById('pair-result').textContent = '';
-  document.getElementById('pair-visualization').innerHTML = '';
-}
-
-// Matrix transpose demo
-let currentMatrix = [
-  [1, 2, 3],
-  [4, 5, 6],
-  [7, 8, 9]
-];
-let transposeCount = 0;
-
-function displayMatrix() {
-  const display = document.getElementById('matrix-display');
-  const steps = document.getElementById('matrix-steps');
-  
-  display.innerHTML = `
-    <div style="text-align: center;">
-      <div style="margin-bottom: 8px; font-size: 12px; color: var(--muted);">元の行列${transposeCount > 0 ? ` (転置${transposeCount}回)` : ''}</div>
-      <div style="display: inline-block; border: 1px solid var(--border); border-radius: 6px; padding: 8px; background: var(--card);">
-        ${currentMatrix.map(row => 
-          `<div style="display: flex; gap: 4px; margin: 2px 0;">
-            ${row.map(cell => 
-              `<div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: var(--bg); border: 1px solid var(--border); border-radius: 3px; font-size: 12px; font-family: monospace;">${cell}</div>`
-            ).join('')}
-          </div>`
-        ).join('')}
-      </div>
-    </div>
-  `;
-  
-  if (transposeCount > 0) {
-    steps.textContent = transposeCount === 1 ? '1回転置済み。もう一度転置すると元に戻ります。' : 
-                       transposeCount === 2 ? '2回転置完了。元の行列に戻りました！' : '';
-  }
-}
-
-function transposeMatrix() {
-  // Transpose: swap rows and columns
-  const transposed = currentMatrix[0].map((_, colIndex) => 
-    currentMatrix.map(row => row[colIndex])
-  );
-  
-  currentMatrix = transposed;
-  transposeCount++;
-  
-  if (transposeCount > 2) {
-    transposeCount = 0;
-  }
-  
-  displayMatrix();
-}
-
-function resetMatrix() {
-  currentMatrix = [
-    [1, 2, 3],
-    [4, 5, 6],
-    [7, 8, 9]
-  ];
-  transposeCount = 0;
-  displayMatrix();
-}
-
-// Initialize demos and attach event listeners when page loads
-document.addEventListener('DOMContentLoaded', function() {
-  // Matrix display initialization
-  if (document.getElementById('matrix-display')) {
-    displayMatrix();
-  }
-
-  // Atbash event listeners
-  const atbashTransformBtn = document.getElementById('atbash-transform-btn');
-  const atbashClearBtn = document.getElementById('atbash-clear-btn');
-  if (atbashTransformBtn) atbashTransformBtn.addEventListener('click', transformAtbash);
-  if (atbashClearBtn) atbashClearBtn.addEventListener('click', clearAtbash);
-
-  // String reverse event listeners
-  const reverseTransformBtn = document.getElementById('reverse-transform-btn');
-  const reverseClearBtn = document.getElementById('reverse-clear-btn');
-  if (reverseTransformBtn) reverseTransformBtn.addEventListener('click', reverseString);
-  if (reverseClearBtn) reverseClearBtn.addEventListener('click', clearReverse);
-
-  // Pair swap event listeners
-  const pairTransformBtn = document.getElementById('pair-transform-btn');
-  const pairClearBtn = document.getElementById('pair-clear-btn');
-  if (pairTransformBtn) pairTransformBtn.addEventListener('click', swapPairs);
-  if (pairClearBtn) pairClearBtn.addEventListener('click', clearPairs);
-
-  // Matrix transpose event listeners
-  const matrixTransposeBtn = document.getElementById('matrix-transpose-btn');
-  const matrixResetBtn = document.getElementById('matrix-reset-btn');
-  if (matrixTransposeBtn) matrixTransposeBtn.addEventListener('click', transposeMatrix);
-  if (matrixResetBtn) matrixResetBtn.addEventListener('click', resetMatrix);
-
-  // Bitwise event listeners
-  const bitwiseTransformBtn = document.getElementById('bitwise-transform-btn');
-  const bitwiseClearBtn = document.getElementById('bitwise-clear-btn');
-  if (bitwiseTransformBtn) bitwiseTransformBtn.addEventListener('click', flipBits);
-  if (bitwiseClearBtn) bitwiseClearBtn.addEventListener('click', clearBitwise);
-
-  // Feistel event listeners
-  const feistelNextBtn = document.getElementById('feistel-next-btn');
-  const feistelResetBtn = document.getElementById('feistel-reset-btn');
-  if (feistelNextBtn) feistelNextBtn.addEventListener('click', feistelRound);
-  if (feistelResetBtn) feistelResetBtn.addEventListener('click', resetFeistel);
-
-  // Bitwise input mode change handler
-  const inputMode = document.getElementById('input-mode');
-  const bitwiseInput = document.getElementById('bitwise-input');
-  if (inputMode && bitwiseInput) {
-    inputMode.addEventListener('change', function() {
-      if (this.value === 'char') {
-        bitwiseInput.value = 'A';
-        bitwiseInput.placeholder = 'A';
-      } else {
-        bitwiseInput.value = '65';
-        bitwiseInput.placeholder = '65';
-      }
+  // ===== アコーディオン（開閉は独立。aria-expanded と hidden を同じに保つ） =====
+  for (const header of document.querySelectorAll('.accordion-header')) {
+    header.addEventListener('click', () => {
+      const open = header.getAttribute('aria-expanded') !== 'true';
+      header.setAttribute('aria-expanded', open ? 'true' : 'false');
+      $(header.getAttribute('aria-controls')).hidden = !open;
     });
   }
 
-  // Initialize Feistel demo
-  if (document.getElementById('feistel-display')) {
-    resetFeistel();
+  // ===== 文字列のデモ（変換・結果をもう一度・クリア） =====
+  // history[0] が最初の入力、history[n] が n 回適用したあとの文字列
+  function textDemo(id, apply, extra) {
+    const input = $(`${id}-input`);
+    const result = $(`${id}-result`);
+    const status = $(`${id}-status`);
+    const run = $(`${id}-run`);
+    const again = $(`${id}-again`);
+    const state = { history: [] };
 
-    // Add real-time input validation
-    const feistelInput = document.getElementById('feistel-input');
-    const feistelKey = document.getElementById('feistel-key');
-    if (feistelInput && feistelKey) {
-      feistelInput.addEventListener('input', validateAndUpdateFeistel);
-      feistelKey.addEventListener('input', validateAndUpdateFeistel);
+    function render() {
+      const h = state.history;
+      const n = h.length - 1;
+      again.disabled = n < 1;
+      result.textContent = n >= 1 ? h[n] : '';
+      status.classList.remove('ok');
+      if (n < 1) {
+        status.textContent = '';
+      } else if (n === 1) {
+        status.textContent = t('demo.once', { again: again.textContent });
+      } else if (h[n] === h[0]) {
+        status.textContent = t('demo.back', { n, text: h[0] === '' ? t('demo.empty') : h[0] });
+        status.classList.add('ok');
+      } else {
+        status.textContent = t('demo.count', { n });
+      }
+      if (extra) extra(h);
     }
-  }
-});
 
-// Bitwise NOT demo
-function flipBits() {
-  const input = document.getElementById('bitwise-input').value;
-  const mode = document.getElementById('input-mode').value;
-  const display = document.getElementById('bitwise-display');
-  const result = document.getElementById('bitwise-result');
-  const explanation = document.getElementById('bitwise-explanation');
-  
-  if (!input.trim()) {
-    result.textContent = '';
-    display.innerHTML = '';
-    explanation.innerHTML = '';
-    return;
+    const step = (from) => {
+      state.history.push(apply(from));
+      render();
+    };
+    run.addEventListener('click', () => {
+      state.history = [input.value];
+      step(input.value);
+    });
+    again.addEventListener('click', () => {
+      if (state.history.length > 1) step(state.history[state.history.length - 1]);
+    });
+    $(`${id}-clear`).addEventListener('click', () => {
+      input.value = '';
+      state.history = [];
+      render();
+      input.focus();
+    });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.isComposing) run.click();
+    });
+    renders.push(render);
+    render();
   }
-  
-  let value;
-  let originalChar;
-  
-  if (mode === 'char') {
-    if (input.length === 0) return;
-    originalChar = input[0];
-    value = originalChar.charCodeAt(0);
-  } else {
-    value = parseInt(input);
-    if (isNaN(value) || value < 0 || value > 255) {
-      result.textContent = 'エラー: 0-255の数値を入力してください';
+
+  // Atbash の変換表（26組）。直前の変換で使った文字を強調する
+  const mapGrid = $('atbash-map');
+  for (let c = 65; c <= 90; c++) {
+    const ch = String.fromCharCode(c);
+    const cell = el('div', 'map-cell', `${ch}↔${C.atbash(ch).output}`);
+    cell.dataset.letter = ch;
+    mapGrid.append(cell);
+  }
+
+  textDemo('atbash', (s) => C.atbash(s).output, (h) => {
+    const used = new Set(h.length > 1 ? C.atbash(h[h.length - 2]).used : []);
+    for (const cell of mapGrid.children) cell.classList.toggle('used', used.has(cell.dataset.letter));
+  });
+  textDemo('rot13', C.rot13);
+  textDemo('rot47', C.rot47);
+
+  // 文字反転: 適用した回ごとの「前→後」を並べる（多すぎるときは最後の8回）
+  textDemo('reverse', C.reverse, (h) => {
+    const list = $('reverse-steps');
+    const items = [];
+    for (let i = Math.max(1, h.length - 8); i < h.length; i++) items.push(el('li', null, t('reverse.step', { n: i, from: h[i - 1], to: h[i] })));
+    list.replaceChildren(...items);
+  });
+
+  // ペア交換: 直前に入れ替えたペアと、残した1文字
+  textDemo('pairs', (s) => C.swapPairs(s).output, (h) => {
+    const detail = $('pairs-detail');
+    if (h.length < 2) {
+      detail.textContent = '';
       return;
     }
-    originalChar = String.fromCharCode(value);
-  }
-  
-  // Perform bitwise NOT (flip all bits)
-  const flipped = (~value) & 0xFF; // Keep only 8 bits
-  const flippedChar = String.fromCharCode(flipped);
-  
-  // Display binary representation
-  const originalBinary = value.toString(2).padStart(8, '0');
-  const flippedBinary = flipped.toString(2).padStart(8, '0');
-  
-  display.innerHTML = `
-    <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px; background: var(--card); border-radius: 8px; font-family: monospace; font-size: 12px;">
-      <div style="text-align: center; flex: 1;">
-        <div style="color: var(--text); font-weight: 600; margin-bottom: 4px;">元の値</div>
-        <div style="color: var(--muted); margin-bottom: 2px;">${mode === 'char' ? `'${originalChar}'` : originalChar} (${value})</div>
-        <div style="color: var(--accent); font-weight: bold;">${originalBinary}</div>
-      </div>
-      <div style="color: var(--muted); font-size: 16px;">→</div>
-      <div style="text-align: center; flex: 1;">
-        <div style="color: var(--text); font-weight: 600; margin-bottom: 4px;">反転後</div>
-        <div style="color: var(--muted); margin-bottom: 2px;">${mode === 'char' ? `'${flippedChar}'` : flippedChar} (${flipped})</div>
-        <div style="color: var(--accent); font-weight: bold;">${flippedBinary}</div>
-      </div>
-    </div>
-  `;
-  
-  if (mode === 'char') {
-    result.textContent = `'${originalChar}' → '${flippedChar}'`;
-  } else {
-    result.textContent = `${value} → ${flipped}`;
-  }
-  
-  explanation.innerHTML = `
-    <div>💡 インボリューション性: もう一度ビット反転すると元に戻ります</div>
-    <div style="margin-top: 4px;">2回目の反転: ${flippedBinary} → ${originalBinary} (${mode === 'char' ? `'${flippedChar}'` : flipped} → ${mode === 'char' ? `'${originalChar}'` : value})</div>
-  `;
-}
-
-function clearBitwise() {
-  document.getElementById('bitwise-input').value = '';
-  document.getElementById('bitwise-result').textContent = '';
-  document.getElementById('bitwise-display').innerHTML = '';
-  document.getElementById('bitwise-explanation').innerHTML = '';
-}
-
-
-// Feistel cipher demo
-let feistelState = {
-  left: 0,
-  right: 0,
-  round: 0,
-  original: 0,
-  history: []
-};
-
-function simpleFeistelFunction(right, key) {
-  // Simple F function: (right + key) mod 16, then some bit manipulation
-  return ((right + key) % 16) ^ (right >> 2);
-}
-
-function displayFeistelState() {
-  const display = document.getElementById('feistel-display');
-  const result = document.getElementById('feistel-result');
-  const status = document.getElementById('feistel-status');
-  const progress = document.getElementById('feistel-progress');
-  const comparison = document.getElementById('feistel-comparison');
-  const nextBtn = document.getElementById('feistel-next-btn');
-  
-  const leftBin = feistelState.left.toString(2).padStart(4, '0');
-  const rightBin = feistelState.right.toString(2).padStart(4, '0');
-  const combinedValue = (feistelState.left << 4) | feistelState.right;
-  
-  // Progress bar
-  const progressBars = [];
-  for (let i = 1; i <= 4; i++) {
-    const isComplete = i <= feistelState.round;
-    const isCurrent = i === feistelState.round + 1 && feistelState.round < 4;
-    progressBars.push(`
-      <div style="display: inline-block; width: 40px; height: 6px; margin: 0 2px; border-radius: 3px; background: ${
-        isComplete ? 'var(--accent)' : isCurrent ? 'rgba(56,189,248,0.3)' : 'var(--border)'
-      };"></div>
-    `);
-  }
-  progress.innerHTML = `
-    <div style="color: var(--muted); font-size: 12px; margin-bottom: 6px;">進行状況: ${feistelState.round}/4 ラウンド</div>
-    <div>${progressBars.join('')}</div>
-  `;
-  
-  // Visual blocks display
-  display.innerHTML = `
-    <div style="display: flex; justify-content: center; align-items: center; gap: 20px; padding: 16px; background: var(--card); border-radius: 8px; border: 2px solid ${feistelState.round === 4 && combinedValue === feistelState.original ? 'var(--accent)' : 'var(--border)'};">
-      <div style="text-align: center; padding: 12px; border-radius: 8px; background: var(--bg); border: 1px solid var(--border);">
-        <div style="color: var(--text); font-weight: 600; margin-bottom: 6px; font-size: 12px;">左ブロック (L)</div>
-        <div style="color: var(--accent); font-weight: bold; font-size: 18px; font-family: monospace;">${leftBin}</div>
-        <div style="color: var(--muted); font-size: 11px; margin-top: 4px;">10進: ${feistelState.left}</div>
-      </div>
-      <div style="color: var(--accent); font-size: 24px; font-weight: bold;">⟷</div>
-      <div style="text-align: center; padding: 12px; border-radius: 8px; background: var(--bg); border: 1px solid var(--border);">
-        <div style="color: var(--text); font-weight: 600; margin-bottom: 6px; font-size: 12px;">右ブロック (R)</div>
-        <div style="color: var(--accent); font-weight: bold; font-size: 18px; font-family: monospace;">${rightBin}</div>
-        <div style="color: var(--muted); font-size: 11px; margin-top: 4px;">10進: ${feistelState.right}</div>
-      </div>
-    </div>
-  `;
-  
-  // Result display
-  result.textContent = `${combinedValue} (2進数: ${leftBin}${rightBin})`;
-  
-  // Comparison with original
-  if (feistelState.round > 0) {
-    const isOriginal = combinedValue === feistelState.original;
-    comparison.innerHTML = `元の値: ${feistelState.original} ${isOriginal ? '✅ 一致!' : ''}`;
-  } else {
-    comparison.innerHTML = '';
-  }
-  
-  // Update button text
-  if (feistelState.round < 4) {
-    nextBtn.innerHTML = `🔄 次のラウンド (${feistelState.round + 1}/4)`;
-    nextBtn.style.background = 'var(--accent)';
-  } else {
-    nextBtn.innerHTML = '✅ 完了 (続行可能)';
-    nextBtn.style.background = 'var(--card)';
-    nextBtn.style.color = 'var(--text)';
-    nextBtn.style.border = '1px solid var(--border)';
-  }
-  
-  // Status messages
-  if (feistelState.round === 0) {
-    status.innerHTML = '💡 開始: 「次のラウンド」ボタンを押してFeistel変換を開始してください';
-    status.style.background = 'rgba(56,189,248,0.1)';
-    status.style.color = 'var(--accent)';
-  } else if (feistelState.round <= 3) {
-    status.innerHTML = `📍 ラウンド ${feistelState.round} 完了<br>あと${4 - feistelState.round}ラウンドで元の値 (${feistelState.original}) に戻ります`;
-    status.style.background = 'rgba(255,193,7,0.1)';
-    status.style.color = '#ff6b35';
-  } else if (feistelState.round === 4) {
-    const isOriginal = combinedValue === feistelState.original;
-    status.innerHTML = `🎉 4ラウンド完了！<br>${isOriginal ? `✅ 元の値 (${feistelState.original}) に戻りました` : '❌ 値が変化しています'}`;
-    status.style.background = isOriginal ? 'rgba(40,167,69,0.1)' : 'rgba(220,53,69,0.1)';
-    status.style.color = isOriginal ? '#28a745' : '#dc3545';
-  } else {
-    status.innerHTML = `🔄 ラウンド ${feistelState.round}<br>同じ処理を繰り返すことで暗号化・復号が可能です`;
-    status.style.background = 'rgba(108,117,125,0.1)';
-    status.style.color = 'var(--muted)';
-  }
-}
-
-function feistelRound() {
-  const keyInput = document.getElementById('feistel-key');
-  const keyError = document.getElementById('feistel-key-error');
-  const key = parseInt(keyInput.value) || 0;
-  
-  if (key < 0 || key > 15) {
-    keyError.textContent = 'エラー: キーは0-15の範囲で入力してください';
-    keyError.style.display = 'block';
-    return;
-  }
-  keyError.style.display = 'none';
-  
-  // Feistel round: L' = R, R' = L XOR F(R, K)
-  const newLeft = feistelState.right;
-  const fResult = simpleFeistelFunction(feistelState.right, key);
-  const newRight = feistelState.left ^ fResult;
-  
-  // Store history
-  feistelState.history.push({
-    round: feistelState.round,
-    left: feistelState.left,
-    right: feistelState.right,
-    fResult: fResult,
-    newLeft: newLeft,
-    newRight: newRight
+    const r = C.swapPairs(h[h.length - 2]);
+    const parts = [t('pairs.list', { list: r.pairs.map(([a, b]) => `${a}${b}→${b}${a}`).join(' ') })];
+    if (r.odd !== null) parts.push(t('pairs.odd', { c: r.odd }));
+    detail.textContent = parts.join(' / ');
   });
-  
-  feistelState.left = newLeft;
-  feistelState.right = newRight & 0xF; // Keep 4 bits
-  feistelState.round++;
-  
-  displayFeistelState();
-}
 
-function validateAndUpdateFeistel() {
-  const inputElement = document.getElementById('feistel-input');
-  const keyElement = document.getElementById('feistel-key');
-  const inputError = document.getElementById('feistel-input-error');
-  const keyError = document.getElementById('feistel-key-error');
-  
-  let hasError = false;
-  
-  // Validate input value
-  const inputValue = inputElement.value.trim();
-  if (inputValue === '') {
-    inputError.textContent = 'エラー: 0-255の数値を入力してください';
-    inputError.style.display = 'block';
-    hasError = true;
-  } else {
-    const value = parseInt(inputValue);
-    if (isNaN(value) || value < 0 || value > 255) {
-      inputError.textContent = 'エラー: 0-255の範囲で入力してください';
-      inputError.style.display = 'block';
-      hasError = true;
+  // ===== 行列の転置（いまの行列を持ち、元の行列と比べて表示を決める） =====
+  const M0 = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
+  const matrix = { current: M0, count: 0 };
+
+  function renderMatrix() {
+    $('matrix-body').replaceChildren(...matrix.current.map((row) => {
+      const tr = el('tr');
+      for (const v of row) tr.append(el('td', null, String(v)));
+      return tr;
+    }));
+    const original = C.sameMatrix(matrix.current, M0);
+    $('matrix-label').textContent = t(original ? 'matrix.original' : 'matrix.transposed', { n: matrix.count });
+    const hint = $('matrix-hint');
+    hint.textContent = t(matrix.count === 0 ? 'matrix.hint0' : original ? 'matrix.hint2' : 'matrix.hint1');
+    hint.classList.toggle('ok', matrix.count > 0 && original);
+  }
+
+  $('matrix-transpose').addEventListener('click', () => {
+    matrix.current = C.transpose(matrix.current);
+    matrix.count++;
+    renderMatrix();
+  });
+  $('matrix-reset').addEventListener('click', () => {
+    matrix.current = M0;
+    matrix.count = 0;
+    renderMatrix();
+  });
+  renders.push(renderMatrix);
+  renderMatrix();
+
+  // ===== ビット反転 =====
+  const not = { history: [], error: null };
+
+  function bitBox(titleKey, v) {
+    const box = el('div', 'bit-box');
+    box.append(el('div', 'bit-title', t(titleKey)), el('div', 'bit-value', `${v} (${C.byteGlyph(v)})`), el('div', 'bit-bits', C.toBinary(v, 8)));
+    return box;
+  }
+
+  function renderNot() {
+    const h = not.history;
+    const n = h.length - 1;
+    const error = $('not-error');
+    error.hidden = !not.error;
+    error.textContent = not.error ? t(`not.err.${not.error}`) : '';
+    $('not-again').disabled = n < 1;
+    const display = $('not-display');
+    const status = $('not-status');
+    status.classList.remove('ok');
+    if (n < 1) {
+      display.replaceChildren();
+      status.textContent = '';
+      return;
+    }
+    display.replaceChildren(bitBox('not.before', h[n - 1]), el('div', 'bit-arrow', '→'), bitBox('not.after', h[n]));
+    const line = t('not.explain', { n, from: C.toBinary(h[n - 1], 8), to: C.toBinary(h[n], 8) });
+    if (n >= 2 && h[n] === h[0]) {
+      status.textContent = `${line} — ${t('not.back', { n, v: h[0] })}`;
+      status.classList.add('ok');
     } else {
-      inputError.style.display = 'none';
+      status.textContent = line;
     }
   }
-  
-  // Validate key value
-  const keyValue = keyElement.value.trim();
-  if (keyValue === '') {
-    keyError.textContent = 'エラー: 0-15の数値を入力してください';
-    keyError.style.display = 'block';
-    hasError = true;
-  } else {
-    const key = parseInt(keyValue);
-    if (isNaN(key) || key < 0 || key > 15) {
-      keyError.textContent = 'エラー: 0-15の範囲で入力してください';
-      keyError.style.display = 'block';
-      hasError = true;
+
+  $('not-run').addEventListener('click', () => {
+    const r = C.parseByteInput($('not-mode').value, $('not-input').value);
+    not.error = r.ok ? null : r.error;
+    not.history = r.ok ? [r.value, C.bitNot(r.value)] : [];
+    renderNot();
+  });
+  $('not-again').addEventListener('click', () => {
+    if (not.history.length > 1) not.history.push(C.bitNot(not.history[not.history.length - 1]));
+    renderNot();
+  });
+  $('not-clear').addEventListener('click', () => {
+    $('not-input').value = '';
+    not.history = [];
+    not.error = null;
+    renderNot();
+  });
+  // 入力の種類を変えたら、読める値は新しい表記へ直し、前の結果は消す（古い結果を残さない）
+  $('not-mode').addEventListener('change', (e) => {
+    const input = $('not-input');
+    const from = e.target.value === 'char' ? 'byte' : 'char';
+    const r = C.parseByteInput(from, input.value);
+    if (r.ok) {
+      const glyph = C.byteGlyph(r.value);
+      input.value = e.target.value === 'byte' ? String(r.value) : glyph.startsWith('U+') ? '' : glyph;
+    }
+    not.history = [];
+    not.error = null;
+    renderNot();
+  });
+  $('not-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.isComposing) $('not-run').click();
+  });
+  renders.push(renderNot);
+
+  // ===== Feistel（暗号化 → 入れ替え → 鍵を逆順にして同じ回路 → 入れ替え） =====
+  const feistel = { plan: null, value: 0, keys: [], done: 0, error: null, half: false };
+  const keyInputs = [1, 2, 3, 4].map((i) => $(`feistel-k${i}`));
+  const nib = (v) => C.toBinary(v, 4);
+
+  function readFeistel() {
+    const value = C.parseIntIn($('feistel-value').value, 255);
+    const keys = keyInputs.map((input) => C.parseIntIn(input.value, 15));
+    if (value === null) return { error: 'feistel.errValue' };
+    if (keys.some((k) => k === null)) return { error: 'feistel.errKey' };
+    return { value, keys };
+  }
+
+  function resetFeistel() {
+    const r = readFeistel();
+    feistel.error = r.error || null;
+    if (!r.error) {
+      feistel.value = r.value;
+      feistel.keys = r.keys;
+      feistel.plan = C.feistelSteps(r.value, r.keys);
+    }
+    feistel.done = 0;
+    feistel.half = false;
+    renderFeistel();
+  }
+
+  function nibbleBox(labelKey, v) {
+    const box = el('div', 'nibble');
+    box.append(el('div', null, t(labelKey)), el('div', 'nibble-bits', nib(v)), el('div', 'note', String(v)));
+    return box;
+  }
+
+  function stepLabel(s, i) {
+    if (s.phase === 'swap') return t('feistel.swap');
+    return t(s.phase === 'enc' ? 'feistel.enc' : 'feistel.dec', { n: s.round, i });
+  }
+
+  function renderFeistel() {
+    const error = $('feistel-error');
+    error.hidden = !feistel.error;
+    error.textContent = feistel.error ? t(feistel.error) : '';
+    const steps = feistel.plan ? feistel.plan.steps : [];
+    const total = steps.length;
+    const blocked = Boolean(feistel.error) || !feistel.plan;
+    $('feistel-next').disabled = blocked || feistel.done >= total;
+    $('feistel-all').disabled = blocked || feistel.done >= total;
+    $('feistel-half').disabled = blocked;
+    const status = $('feistel-status');
+    status.classList.remove('ok');
+    if (blocked) {
+      $('feistel-progress').textContent = '';
+      $('feistel-state').replaceChildren();
+      $('feistel-trace').replaceChildren();
+      $('feistel-half-result').textContent = '';
+      status.textContent = '';
+      return;
+    }
+    const done = feistel.done;
+    const now = done ? steps[done - 1].after : { L: feistel.value >> 4, R: feistel.value & 15 };
+    $('feistel-progress').textContent = t('feistel.progress', { i: done, n: total });
+    $('feistel-state').replaceChildren(nibbleBox('feistel.left', now.L), nibbleBox('feistel.right', now.R));
+
+    const rounds = feistel.keys.length;
+    if (done === 0) {
+      status.textContent = t('feistel.start');
     } else {
-      keyError.style.display = 'none';
+      const s = steps[done - 1];
+      if (s.phase === 'enc' && s.round === rounds) {
+        status.textContent = t('feistel.statusCipher', { c: feistel.plan.cipher, bin: C.toBinary(feistel.plan.cipher, 8) });
+      } else if (s.phase === 'enc') {
+        status.textContent = t('feistel.statusEnc', { n: s.round, f: nib(s.f) });
+      } else if (s.phase === 'swap' && done < total) {
+        status.textContent = t('feistel.statusSwap', { keys: [...feistel.keys].reverse().join(', ') });
+      } else if (s.phase === 'dec') {
+        status.textContent = t('feistel.statusDec', { n: s.round, k: s.key });
+      } else {
+        status.textContent = t('feistel.statusDone', { v: feistel.plan.plain });
+        status.classList.add('ok');
+      }
+    }
+
+    $('feistel-trace').replaceChildren(...steps.slice(0, done).map((s, i) => {
+      const tr = el('tr', s.phase === 'swap' ? 'swap' : null);
+      tr.append(
+        el('td', null, `${i + 1}. ${stepLabel(s, i + 1)}`),
+        el('td', 'mono', s.phase === 'swap' ? '—' : String(s.key)),
+        el('td', 'mono', s.phase === 'swap' ? '—' : nib(s.f)),
+        el('td', 'mono', `(${nib(s.after.L)}, ${nib(s.after.R)})`)
+      );
+      return tr;
+    }));
+
+    const half = $('feistel-half-result');
+    half.classList.remove('ok');
+    if (feistel.half) {
+      const L0 = feistel.value >> 4;
+      const R0 = feistel.value & 15;
+      const once = C.feistelHalf(L0, R0, feistel.keys[0]);
+      const twice = C.feistelHalf(once.L, once.R, feistel.keys[0]);
+      const vars = { l0: nib(L0), r0: nib(R0), l1: nib(once.L), r1: nib(once.R), l2: nib(twice.L), r2: nib(twice.R) };
+      half.textContent = `${t('feistel.halfResult', vars)} — ${t('feistel.halfBack')}`;
+      half.classList.add('ok');
+    } else {
+      half.textContent = '';
     }
   }
-  
-  // If no errors, update the display in real-time
-  if (!hasError) {
-    resetFeistel();
-  }
-}
 
-function resetFeistel() {
-  const input = document.getElementById('feistel-input');
-  const value = parseInt(input.value) || 170;
-  
-  if (value < 0 || value > 255) {
-    return; // Error handling now done in validateAndUpdateFeistel
+  $('feistel-next').addEventListener('click', () => {
+    if (feistel.plan && feistel.done < feistel.plan.steps.length) feistel.done++;
+    renderFeistel();
+  });
+  $('feistel-all').addEventListener('click', () => {
+    if (feistel.plan) feistel.done = feistel.plan.steps.length;
+    renderFeistel();
+  });
+  $('feistel-reset').addEventListener('click', resetFeistel);
+  $('feistel-half').addEventListener('click', () => {
+    feistel.half = true;
+    renderFeistel();
+  });
+  for (const input of [$('feistel-value'), ...keyInputs]) input.addEventListener('input', resetFeistel);
+  renders.push(renderFeistel);
+
+  // ===== テーマ・言語・初期表示 =====
+  const themeBtn = $('btn-theme');
+  themeBtn.addEventListener('click', () => Theme.toggle(themeBtn));
+
+  function applyLanguage() {
+    I18n.applyStaticText();
+    Theme.refresh(themeBtn);
+    for (const render of renders) render();
   }
-  
-  // Split 8-bit value into two 4-bit halves
-  feistelState.left = (value >> 4) & 0xF;  // Upper 4 bits
-  feistelState.right = value & 0xF;         // Lower 4 bits
-  feistelState.round = 0;
-  feistelState.original = value;
-  feistelState.history = [];
-  
-  displayFeistelState();
-}
+
+  I18n.init();
+  resetFeistel();
+  applyLanguage();
+})();
