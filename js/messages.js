@@ -143,10 +143,175 @@
     'feistel.halfRun': '入力値とk1で2回適用',
     'feistel.halfResult': '({l0}, {r0}) → ({l1}, {r1}) → ({l2}, {r2})',
     'feistel.halfBack': '2回目で元の(L, R)に戻りました。',
-    'feistel.note': '同じ鍵で4ラウンドをもう一度くり返しても、元に戻るとは限りません（このデモのFでは、入力と鍵の4096通りのうち50通りだけ）。'
+    'feistel.note': '同じ鍵のまま4ラウンド続けても、元の値に戻るとは限りません（このデモのFでは、入力と鍵の4096通りのうち戻るのは50通りだけ）。'
   };
 
-  const MESSAGES = { ja };
+  const en = {
+    'ui.subtitle': 'A learning hub for involutions (transforms that return to the original when applied twice), '
+      + 'with lightweight demos of substitution, transposition and bitwise operations',
+    'ui.tabsLabel': 'Switch views',
+    'ui.langButton': '日本語',
+    'ui.langLabel': '日本語に切り替える',
+    'ui.repo': 'GitHub repository (ipusiron/involution-studio)',
+    'ui.noscript': 'This page needs JavaScript. Please enable JavaScript and reload the page.',
+    'theme.toDark': 'Switch to dark mode',
+    'theme.toLight': 'Switch to light mode',
+    'tab.basics': 'Involution basics',
+    'tab.subst': 'Substitution',
+    'tab.trans': 'Transposition',
+    'tab.bits': 'Bitwise',
+
+    'basics.title': 'What is an involution?',
+    'basics.p1': 'An involution is a transform that returns to the original when the same operation is applied twice. '
+      + 'In mathematics it is written **f(f(x)) = x**.',
+    'basics.p2': 'The most familiar example is reversing a string: "HELLO" → "OLLEH" → "HELLO" returns to the original after two applications. '
+      + 'Matrix transposition, sign negation, bit inversion and classical ciphers such as Atbash and ROT13 share the same property.',
+    'basics.math.title': 'Mathematical examples',
+    'basics.math.body': 'An involution is a function that is its own inverse.\n'
+      + 'Transposing a matrix gives (Aᵀ)ᵀ = A, negating gives −(−x) = x, and taking the reciprocal gives 1/(1/x) = x (x ≠ 0).\n'
+      + 'In each case, applying the same operation once more to the first result gives back the starting value.',
+    'basics.crypto.title': 'Use in cryptography',
+    'basics.crypto.body': 'In an involutory cipher, encryption and decryption are the same procedure. Both can run on the same circuit or program, '
+      + 'so a single implementation does both.\n'
+      + 'Atbash maps the alphabet to itself in reverse order (A↔Z, B↔Y), ROT13 shifts by half of the 26 letters (13), '
+      + 'and ROT47 shifts by half of 94 characters (47). Each returns to the original when applied twice.\n'
+      + 'A Feistel structure is not an involution as a whole, but it decrypts on the same circuit as encryption just by reversing the order of the keys. '
+      + 'DES uses this property (FIPS 46-3).',
+    'basics.safety.title': 'Relation to security',
+    'basics.safety.body': 'Atbash, ROT13 and ROT47 have no key. Anyone who knows the method can undo them with the same operation, '
+      + 'so they make text unreadable at a glance (obfuscation) rather than keep secrets.\n'
+      + 'Being an involution is not a weakness in itself. Feistel ciphers such as DES also encrypt and decrypt on the same circuit. '
+      + 'What keeps such ciphers secure is the key.',
+
+    'subst.title': 'Substitution involutions',
+    'subst.lead': 'Transforms that replace characters with other characters and return to the original when applied twice. '
+      + 'Lightweight demos are here, and the dedicated tools go further.',
+    'atbash.title': 'Atbash',
+    'atbash.body': 'Atbash is a substitution that maps the alphabet to itself in reverse order (A↔Z, B↔Y, …, M↔N). '
+      + 'Applying the same substitution twice gives back the original letters.\n'
+      + 'It began as a substitution of Hebrew letters, and its name comes from the pairs of the first and last letters (alef, taw) '
+      + 'and the second and second-to-last letters (bet, shin). "Sheshach" in Jeremiah 25:26 is interpreted as "Babel" written in Atbash.',
+    'atbash.note': 'Characters other than letters (digits, symbols, spaces, Japanese and so on) are left as they are. Upper and lower case are kept.',
+    'atbash.table': 'Mapping table (letters used by the last application are highlighted)',
+    'rot13.title': 'ROT13',
+    'rot13.body': 'ROT13 is a substitution that shifts the 26 letters A–Z by half (13 letters). '
+      + 'Because it shifts by half a turn, applying it twice gives back the original, so encryption and decryption are the same operation.',
+    'rot13.link': '🔗 ROT13 Encoder',
+    'rot47.title': 'ROT47',
+    'rot47.body': 'ROT47 shifts ASCII 33–126 (94 characters: digits, symbols and letters) by half (47 characters). '
+      + 'It makes more characters unreadable than ROT13 and also returns to the original when applied twice. Spaces and Japanese text are not changed.',
+    'rot47.link': '🔗 QuickROT47',
+
+    'demo.text': 'Text',
+    'demo.run': 'Transform',
+    'demo.again': 'Transform the result again',
+    'demo.clear': 'Clear',
+    'demo.result': 'Result',
+    'demo.once': 'Applied once. Press "{again}" to apply it a second time.',
+    'demo.back': 'Applied {n} times and back to the original "{text}".',
+    'demo.count': 'Applied {n} times.',
+    'demo.empty': '(empty string)',
+
+    'trans.title': 'Transposition involutions',
+    'trans.lead': 'Transforms that rearrange the order and return to the original when applied twice. You can check them with strings and matrices.',
+    'reverse.title': 'String reversal',
+    'reverse.body': 'The most basic transposition: arrange a string in reverse order. '
+      + '"HELLO" → "OLLEH" → "HELLO" returns to the original after two applications.',
+    'reverse.note': 'Rearranges by Unicode code point. Characters that look like one but consist of several code points, such as family emoji and flags, '
+      + 'look broken after the first application but come back after the second.',
+    'reverse.step': 'Application {n}: "{from}" → "{to}"',
+    'reverse.run': 'Reverse',
+    'reverse.again': 'Reverse the result again',
+    'pairs.title': 'Pair swap',
+    'pairs.body': 'Swaps each pair of adjacent characters. "ABCD" → "BADC" → "ABCD" returns to the original after two applications. '
+      + 'If the length is odd, the last character stays where it is.',
+    'pairs.shuffle': 'A perfect shuffle of playing cards (split the deck in half and interleave the cards one by one) is a different operation '
+      + 'and does not return after two shuffles. With 52 cards, it takes 8 shuffles when the top card stays on top (out-shuffle) '
+      + 'and 52 when it goes second (in-shuffle) to restore the original order (Diaconis, Graham and Kantor, 1983).',
+    'pairs.run': 'Swap pairs',
+    'pairs.again': 'Swap the result again',
+    'pairs.list': 'Swapped pairs: {list}',
+    'pairs.odd': 'the last "{c}" stays',
+    'matrix.title': 'Matrix transposition',
+    'matrix.body': 'Swaps the rows and columns of a matrix. Transposing twice gives back the original matrix, whether or not it is square.\n'
+      + 'In a keyless columnar transposition cipher, writing the plaintext into a square and reading it out by columns '
+      + 'is the same rearrangement as transposing the matrix.',
+    'matrix.transpose': 'Transpose',
+    'matrix.reset': 'Reset',
+    'matrix.original': 'Original matrix (transposed {n} times)',
+    'matrix.transposed': 'Transposed matrix (transposed {n} times)',
+    'matrix.hint0': 'Press "Transpose".',
+    'matrix.hint1': 'Transposing once more gives back the original matrix.',
+    'matrix.hint2': 'Back to the original matrix.',
+    'matrix.caption': 'A 3×3 matrix',
+    'columnar.title': '💡 Try it in a real cipher tool',
+    'columnar.body': 'To check the involution in a columnar transposition cipher, '
+      + 'use no key and make the plaintext exactly fill a square (pad it if it is short).',
+    'columnar.link': '🔗 Columnar CipherLab',
+
+    'bits.title': 'Bitwise involutions',
+    'bits.lead': 'Bit-level transforms that return to the original when applied twice. '
+      + 'With the Feistel structure, you can see how decryption runs on the same circuit.',
+    'not.title': 'Bitwise NOT',
+    'not.body': 'Bit inversion (the NOT operation) turns 0 into 1 and 1 into 0. It is the most basic bit operation, '
+      + 'and applying it twice in a row gives back the original bit pattern.',
+    'not.input': 'Character or byte value',
+    'not.mode': 'Input type',
+    'not.modeChar': 'Character (U+0000–U+00FF)',
+    'not.modeByte': 'Byte value (0–255)',
+    'not.run': 'Invert bits',
+    'not.again': 'Invert the result again',
+    'not.before': 'Before',
+    'not.after': 'After',
+    'not.explain': 'Inversion {n}: {from} → {to}',
+    'not.back': 'Inverted {n} times and back to the original value {v}.',
+    'not.err.empty': 'Enter a value.',
+    'not.err.many': 'Enter only one character.',
+    'not.err.wide': 'Enter a character that fits in 8 bits (U+0000–U+00FF).',
+    'not.err.range': 'Enter an integer from 0 to 255 (decimal).',
+
+    'feistel.title': 'Feistel structure',
+    'feistel.body1': 'A Feistel structure is the skeleton of a cipher that repeats one process (a round): split the data into left and right halves, '
+      + 'XOR F(R, k), computed from the right half and a key, into the left half, and then swap the halves.',
+    'feistel.body2': 'Even if the round function F has no inverse, you get back the original by swapping the halves of the ciphertext, '
+      + 'running it through the same circuit with the keys in reverse order, and swapping once more.',
+    'feistel.toy': 'This demo is a toy Feistel that splits 8 bits into two 4-bit halves (F(R, k) = ((R + k) mod 16) XOR (R >> 2)).',
+    'feistel.value': 'Input value (0–255)',
+    'feistel.keys': 'Round keys (0–15)',
+    'feistel.key': 'k{n}',
+    'feistel.next': 'Next step',
+    'feistel.all': 'To the end',
+    'feistel.reset': 'Start over',
+    'feistel.progress': 'Step {i}/{n}',
+    'feistel.colStep': 'Step',
+    'feistel.colKey': 'Key',
+    'feistel.colF': 'F(R, k)',
+    'feistel.colAfter': '(L, R) after the step',
+    'feistel.enc': 'Encryption round {n}',
+    'feistel.swap': 'Swap halves',
+    'feistel.dec': 'Decryption round {n}',
+    'feistel.current': 'Current value',
+    'feistel.left': 'Left (L)',
+    'feistel.right': 'Right (R)',
+    'feistel.start': 'Press "Next step" to run the encryption one round at a time.',
+    'feistel.statusEnc': 'Encryption round {n}: XORed F(R, k{n}) = {f} into the left half and swapped the halves.',
+    'feistel.statusCipher': 'Encryption is done. The ciphertext is {c} (binary {bin}). Next, decrypt it on the same circuit.',
+    'feistel.statusSwap': 'Swapped the halves of the ciphertext. From here, it goes through the same circuit with the keys in reverse order ({keys}).',
+    'feistel.statusDec': 'Decryption round {n}: the same processing as encryption, with key {k}.',
+    'feistel.statusDone': 'Back to the original value {v}. The same circuit as encryption was used, with only the key order reversed.',
+    'feistel.errValue': 'Enter the input value as an integer from 0 to 255.',
+    'feistel.errKey': 'Enter each key as an integer from 0 to 15.',
+    'feistel.halfTitle': 'One round without the swap returns after two applications',
+    'feistel.halfBody': 'A round without the swap, (L, R) → (L ⊕ F(R, k), R), is an involution by itself, '
+      + 'because XORing the same F(R, k) again cancels it out.',
+    'feistel.halfRun': 'Apply twice with the input value and k1',
+    'feistel.halfResult': '({l0}, {r0}) → ({l1}, {r1}) → ({l2}, {r2})',
+    'feistel.halfBack': 'Back to the original (L, R) after the second application.',
+    'feistel.note': 'Running 4 rounds with the same key does not necessarily return to the original value '
+      + '(with the F of this demo, only 50 of the 4,096 combinations of input and key do).'
+  };
+
+  const MESSAGES = { ja, en };
 
   function t(key, vars = {}, lang) {
     const dict = MESSAGES[lang || (globalThis.InvolutionI18n && globalThis.InvolutionI18n.lang) || 'ja'] || ja;

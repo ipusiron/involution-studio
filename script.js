@@ -370,6 +370,17 @@
     for (const render of renders) render();
   }
 
+  // 切り替えたら、URL に ?lang= があればそれも書き換える（再読み込みで元の言語に戻らないように）
+  $('btn-lang').addEventListener('click', () => {
+    I18n.set(I18n.lang === 'ja' ? 'en' : 'ja');
+    const url = new URL(location.href);
+    if (url.searchParams.has('lang')) {
+      url.searchParams.set('lang', I18n.lang);
+      history.replaceState(null, '', url);
+    }
+    applyLanguage();
+  });
+
   I18n.init();
   resetFeistel();
   applyLanguage();

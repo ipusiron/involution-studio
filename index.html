@@ -20,6 +20,8 @@
       <div class="header-spacer"></div>
       <h1>Involution Studio</h1>
       <div class="header-actions">
+        <button type="button" id="btn-lang" class="icon-btn" data-i18n="ui.langButton" data-i18n-attr="aria-label:ui.langLabel;title:ui.langLabel"
+          aria-label="Switch to English" title="Switch to English">English</button>
         <button type="button" id="btn-theme" class="icon-btn" aria-label="ダークモードに切り替える" title="ダークモードに切り替える">🌙</button>
       </div>
     </div>
@@ -373,7 +375,7 @@
                 <button type="button" class="btn" id="feistel-half" data-i18n="feistel.halfRun">入力値とk1で2回適用</button>
                 <p class="status mono" id="feistel-half-result" aria-live="polite"></p>
               </div>
-              <p class="note" data-i18n="feistel.note">同じ鍵で4ラウンドをもう一度くり返しても、元に戻るとは限りません（このデモのFでは、入力と鍵の4096通りのうち50通りだけ）。</p>
+              <p class="note" data-i18n="feistel.note">同じ鍵のまま4ラウンド続けても、元の値に戻るとは限りません（このデモのFでは、入力と鍵の4096通りのうち戻るのは50通りだけ）。</p>
             </div>
           </div>
         </article>
