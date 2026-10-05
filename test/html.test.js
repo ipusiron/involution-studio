@@ -40,7 +40,7 @@ test('タブは WAI-ARIA の形（tablist の中はタブだけ、aria-controls 
 
 test('アコーディオンは見出しの中のボタンで開閉し、aria-controls の先が実在して最初は閉じている', () => {
   const headers = [...html.matchAll(/<button type="button" class="accordion-header" id="([a-z0-9-]+)" aria-expanded="false" aria-controls="([a-z0-9-]+)">/g)];
-  assert.equal(headers.length, 11);
+  assert.equal(headers.length, 17);
   for (const [, btn, region] of headers) {
     assert.match(html, new RegExp(`<div class="accordion-content" id="${region}" role="region" aria-labelledby="${btn}" hidden>`), region);
   }
@@ -76,7 +76,7 @@ test('data-i18n のキーは辞書にあり、HTML に書いた日本語は辞�
 test('画面のスクリプトが参照する id は、すべて HTML にある', () => {
   const src = read('script.js');
   for (const m of src.matchAll(/\$\('([a-z0-9-]+)'\)/g)) assert.ok(ids.has(m[1]), m[1]);
-  for (const id of ['atbash', 'rot13', 'rot47', 'reverse', 'pairs']) {
+  for (const id of ['atbash', 'rot13', 'rot47', 'reverse', 'pairs', 'enigma']) {
     for (const part of ['input', 'result', 'status', 'run', 'again', 'clear']) assert.ok(ids.has(`${id}-${part}`), `${id}-${part}`);
   }
   for (const i of [1, 2, 3, 4]) assert.ok(ids.has(`feistel-k${i}`), i);
@@ -99,4 +99,10 @@ test('localStorage は try で囲んで読み書きする（使えない環境�
     const guarded = [...src.matchAll(/try \{\s*(?:const [a-z]+ = |return )?localStorage\.|try \{\s*localStorage\./g)].length;
     assert.equal(guarded, uses, f);
   }
+});
+
+test('判定器に書いた通り数（26文字の対合と、不動点のない対合）は、計算部の値と同じ', () => {
+  const C = load('js/involution-core.js').InvolutionCore;
+  const vars = parseVars(html.match(/data-i18n="checker.count" data-i18n-vars="([^"]+)"/)[1]);
+  assert.deepEqual(vars, { all: C.involutionCount(26).toLocaleString('en-US'), free: C.fixedPointFreeCount(26).toLocaleString('en-US') });
 });

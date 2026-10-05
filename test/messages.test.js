@@ -36,6 +36,8 @@ test('画面のスクリプトが使うキーは、すべて辞書にある（�
   const src = ['script.js', 'js/theme.js'].map(read).join('\n');
   for (const m of src.matchAll(/\bt\('([a-z]+\.[A-Za-z0-9.]+)'/g)) assert.ok(MESSAGES.ja[m[1]] !== undefined, m[1]);
   for (const e of ['empty', 'many', 'wide', 'range']) assert.ok(MESSAGES.ja[`not.err.${e}`], e);
+  for (const e of ['empty', 'odd', 'k']) assert.ok(MESSAGES.ja[`order.err.${e}`], e);
+  for (const e of ['length', 'letters', 'duplicate']) assert.ok(MESSAGES.ja[`checker.err.${e}`], e);
   for (const k of ['feistel.errValue', 'feistel.errKey', 'feistel.enc', 'feistel.dec', 'matrix.original', 'matrix.transposed']) assert.ok(MESSAGES.ja[k], k);
 });
 

@@ -10,7 +10,7 @@ English · [日本語](README.md)
 
 **Day051 - 100 Security Tools with Generative AI**
 
-Involution Studio is a learning hub for checking involutions, transforms that return to the original when applied twice, with lightweight demos. Each demo for substitution (Atbash, ROT13, ROT47), transposition (string reversal, pair swap, matrix transposition) and bitwise operations (NOT, Feistel structure) has a button that applies the transform to the result again, so you can see it return to the original on the second application. The Feistel structure is shown one step at a time, from encryption to decryption on the same circuit with the keys in reverse order.
+Involution Studio is a learning hub for checking involutions, transforms that return to the original when applied twice, with lightweight demos. Each demo for substitution (Atbash, ROT13, ROT47), transposition (string reversal, pair swap, matrix transposition) and bitwise operations (NOT, Feistel structure) has a button that applies the transform to the result again, so you can see it return to the original on the second application. The Feistel structure is shown one step at a time, from encryption to decryption on the same circuit with the keys in reverse order. You can also check how many times a transform takes to return (its order), use a checker for 26-letter substitution tables, try a simplified Enigma reflector, see XOR and key reuse, and compare units of reversal (code unit, code point, grapheme).
 
 ---
 
@@ -32,13 +32,21 @@ You can try it directly in your browser.
 >
 >*Atbash. "Hello, World!" transformed twice and back to the original, with the letters used in the second application highlighted in the table*
 
->![String reversal and matrix transposition](assets/en/screenshot3.png)
+>![Units of reversal](assets/en/screenshot3.png)
 >
->*String reversal (dark). A string with an emoji reversed twice by code point and back to the original*
+>*String reversal (dark). The Hangul jamo "ᅡᄀ" reversed twice by grapheme stay joined as one character and do not return*
 
 >![Bitwise NOT demo](assets/en/screenshot4.png)
 >
 >*Bitwise NOT. The byte value 60 inverted twice and back to 00111100*
+
+>![Involution checker](assets/en/screenshot5.png)
+>
+>*Involution checker. The Beaufort (key A) table is judged an involution with the two fixed points A and N*
+
+>![Enigma reflector](assets/en/screenshot6.png)
+>
+>*The Enigma reflector (dark). Text encrypted with the simplified version is run again from the same position and comes back, with the mapping table showing that no letter maps to itself*
 
 ---
 
@@ -46,10 +54,10 @@ You can try it directly in your browser.
 
 ### 📚 Four tabs
 
-- Involution basics: the definition (f(f(x)) = x), mathematical examples, use in cryptography and the relation to security
-- Substitution: lightweight demos of Atbash, ROT13 and ROT47. For Atbash, a table of the 26 pairs highlights the letters used last
-- Transposition: lightweight demos of string reversal, pair swap and transposing a 3×3 matrix
-- Bitwise: 8-bit NOT and a toy Feistel structure (8 bits split into two 4-bit halves)
+- Involution basics: the definition (f(f(x)) = x), mathematical examples, how many times until it returns (order), use in cryptography, modern ciphers and the Enigma, and the relation to security
+- Substitution: lightweight demos of Atbash, ROT13 and ROT47, the involution checker, the Enigma reflector and other reciprocal ciphers (try100). For Atbash, a table of the 26 pairs highlights the letters used last
+- Transposition: lightweight demos of string reversal (with a choice of unit), pair swap and transposing a 3×3 matrix
+- Bitwise: 8-bit NOT, XOR (stream cipher) and a toy Feistel structure (8 bits split into two 4-bit halves)
 
 ### 🔁 Check that the second application gives back the original
 
@@ -57,6 +65,17 @@ You can try it directly in your browser.
 - String reversal lists which string became which in each application
 - Matrix transposition compares the current matrix with the original and shows "Original matrix" or "Transposed matrix"
 - Bitwise NOT accepts a character (U+0000–U+00FF) or a byte value from 0 to 255 and shows it in binary
+
+### 🔍 Find how many times it takes and where it breaks
+
+- How many times until it returns (order): repeat Caesar (shift 1–25), ROT13, Atbash, string reversal, pair swap or a perfect shuffle (out or in) until the input returns, and list the number of times and the intermediate states
+- Involution checker: from a 26-letter substitution table (where A to Z go), show whether it is an involution, its fixed points, swapped pairs, cycles of 3 or more letters and its order. Examples include Atbash, ROT13, Caesar, Beaufort, Enigma reflector B, rotor I and random involutions (crypto.getRandomValues)
+- Unit of reversal: choose code point, UTF-16 code unit or grapheme (one visible character). The page warns when an intermediate string is no longer valid Unicode and when grapheme reversal does not return
+
+### 🔐 The Enigma and XOR
+
+- The Enigma reflector: a simplified version with rotor I and reflector B. Choose a starting position and encrypt; running the result again from the same position gives back the original. It also shows the mapping of the 26 letters (13 pairs) for the first letter
+- XOR (stream cipher): XOR a random key from the browser into the UTF-8 bytes and XOR again to get them back. Encrypt a second plaintext with the same key and see that C1 ⊕ C2 equals P1 ⊕ P2
 
 ### 🧩 Step-by-step Feistel structure
 
@@ -79,7 +98,9 @@ You can try it directly in your browser.
 3. Enter a string in a lightweight demo and press "Transform"
 4. Press "Transform the result again" and check that the second application gives back the original input
 5. In the Feistel structure, "Next step" goes one step at a time and "To the end" goes all the way. Changing the input value or a key starts over
-6. For long texts or files, move to the dedicated tools from the link in each item
+6. In "How many times until it returns" on the basics tab, compare how many times non-involutory transforms take to return
+7. Enter a substitution table in the checker on the substitution tab (or choose an example) and check whether it is an involution and which letters are fixed
+8. For long texts or files, move to the dedicated tools from the link in each item
 
 ---
 
@@ -92,6 +113,10 @@ Check the property with the lightweight demos here, and work in earnest with the
 | Substitution | ROT13 and its second application | [ROT13 Encoder](https://ipusiron.github.io/rot13-encoder/) |
 | Substitution | ROT47 and its second application | [QuickROT47](https://ipusiron.github.io/quick-rot47/) |
 | Transposition | Transposing a 3×3 matrix | [Columnar CipherLab](https://ipusiron.github.io/columnar-cipherlab/) |
+| Transposition | String reversal | [Mirror CipherLab](https://ipusiron.github.io/mirror-cipherlab/) |
+| Substitution | Beaufort (key A and key B) in the checker | [Beaufort CipherLab](https://ipusiron.github.io/beaufort-cipherlab/) |
+| Substitution | An example of a self-inverse Hill matrix | [Hill CipherLab](https://ipusiron.github.io/hill-cipherlab/) |
+| Bitwise | XOR and key reuse | [OTP Animation](https://ipusiron.github.io/otp-animation/) |
 
 ---
 
@@ -120,9 +145,56 @@ Atbash is a substitution that maps the alphabet to itself in reverse order. It b
 
 String reversal and pair swap rearrange by Unicode code point. Rearranging by UTF-16 code unit would split the surrogate pairs of emoji, so the intermediate string would no longer be valid Unicode (it would still come back on the second application). Characters that look like one but consist of several code points, such as family emoji and flags, look broken after the first application but come back after the second.
 
+String reversal lets you choose the unit. Reversing by grapheme (one visible character) keeps the look, but it does not always return after two applications. By rule GB6 of UAX #29 (Unicode 18.0.0), Hangul jamo join into one character only when a vowel follows a consonant. The two characters "vowel, consonant" (ᅡᄀ) are two graphemes, but reversing them gives "consonant, vowel", which joins into one grapheme (가), and reversing again does not bring them back. Whether it is an involution depends on what you count as one character.
+
 ### Pair swap and the perfect shuffle
 
 Pair swap, which swaps each pair of adjacent characters, is an involution. A perfect shuffle of playing cards (split the deck in half and interleave the cards one by one) is a different operation and does not return after two shuffles. With 52 cards, the original order comes back after 8 out-shuffles, where the top card stays on top, or 52 in-shuffles, where it goes second (Diaconis, Graham and Kantor, 1983).
+
+### How many times until it returns (order)
+
+The number of repetitions a transform needs before it first returns to the original is called its order. An involution is a transform of order 2. A Caesar shift of k has order 26/gcd(k, 26), and only ROT13 (k = 13) has order 2.
+
+| Transform | Input | Times until it returns |
+|---|---|---|
+| Caesar (shift 3) | ABCDEFGHIJKLMNOPQRSTUVWXYZ | 26 |
+| ROT13 | ABCDEFGHIJKLMNOPQRSTUVWXYZ | 2 |
+| Perfect shuffle (out) | ABCDEFGHIJKLMNOPQRSTUVWXYZ | 20 |
+| Perfect shuffle (in) | ABCDEFGHIJKLMNOPQRSTUVWXYZ | 18 |
+| Perfect shuffle (out) | ABCDEFGH | 3 |
+| Perfect shuffle (in) | ABCDEFGH | 6 |
+
+### The checker and the number of involutions
+
+When a substitution table is split into cycles (rings you follow until you come back to the starting letter), an involution is a permutation with no cycle of length 3 or more. Of the rearrangements of 26 letters, 532,985,208,200,576 are involutions, and 7,905,853,580,625 of those have no fixed points (they consist only of 13 swapped pairs).
+
+| Substitution table | Result | Fixed points | Pairs | Order |
+|---|---|---|---|---|
+| Atbash | Involution | none | 13 | 2 |
+| ROT13 | Involution | none | 13 | 2 |
+| Beaufort (key A) | Involution | A, N | 12 | 2 |
+| Beaufort (key B) | Involution | none | 13 | 2 |
+| Enigma reflector B | Involution | none | 13 | 2 |
+| Caesar (shift 3) | Not an involution | none | 0 | 26 |
+| Enigma rotor I | Not an involution | S | 2 | 60 |
+
+- The Beaufort cipher encrypts with c = k − p (mod 26) from the key letter k and the plaintext letter p, and decrypts with the same formula. It is an involution for each key letter, and when the key letter is A, C, E, …, Y, two letters map to themselves
+- Rotor I by itself is not an involution and returns after 60 times. With reflector B in between, it becomes an involution without fixed points at every position
+- "Random involution" makes examples for learning and does not pick uniformly from all involutions
+
+### The Enigma reflector
+
+In the Enigma, each key press advances the rotor, and the current passes through the rotor, turns back at the reflector (UKW) and returns through the rotor by a different path. Because of the reflector, encryption and decryption are the same operation with the same settings, and in exchange no letter is ever encrypted into itself. Crypto Museum lists this as one of the weaknesses of the Enigma.
+
+The simplified version in this tool has only one rotor (rotor I of the Enigma I, EKMFLGDQVZNTOWYHXUSPAIBRCJ) and reflector B (YRUHQSLDPXNGOKMIEBFZCWVJAT). With starting position A, the input HELLOWORLD encrypts to FJGANRHBSE, and running FJGANRHBSE from the same position gives back HELLOWORLD. At all 26 positions, the mapping is an involution without fixed points.
+
+### Self-inverse Hill matrices
+
+The Hill cipher transforms groups of letters with a matrix. With a self-inverse matrix where A² ≡ I (mod 26) as the key, encryption and decryption use the same matrix. The example in this tool is A = [[3, 2], [9, 23]]; A² is the identity matrix and its determinant is 25 (coprime to 26).
+
+### XOR and key reuse
+
+XORing the same value twice returns to the original ((P ⊕ K) ⊕ K = P). Once the key stream is fixed, the encryption of a stream cipher is itself an involution. If the same key stream is used for two plaintexts, C1 ⊕ C2 = (P1 ⊕ K) ⊕ (P2 ⊕ K) = P1 ⊕ P2, so the key cancels out and the XOR of the plaintexts remains. This is why a one-time pad key must never be reused.
 
 ### Feistel structure
 
@@ -148,6 +220,11 @@ The Feistel in this tool is a toy that splits 8 bits into two 4-bit halves, with
 - One round without the swap, (L, R) → (L ⊕ F(R, k), R), is an involution by itself, because XORing the same F(R, k) again cancels it out
 - Running 4 rounds with the same key does not necessarily return to the original value. With the F of this tool, only 50 of the 4096 combinations of input and key do
 
+### Involutions in modern ciphers
+
+- Khazad (Barreto and Rijmen) is not a Feistel cipher, but it makes every component of the round an involution so that the inverse is the same process with only a different key schedule. Its S-box also returns after two applications (S[S[x]] = x)
+- In PRINCE (Borghoff et al., 2012), the inverse of the core (PRINCEcore) equals PRINCEcore with the key XORed with a constant α (α-reflection). So decryption equals encryption with a key in which the two whitening keys are swapped and the core key is XORed with α
+
 ### Involutions and security
 
 Atbash, ROT13 and ROT47 have no key. Anyone who knows the method can undo them with the same operation, so they make text unreadable at a glance (obfuscation) rather than keep secrets. Being an involution is not a weakness in itself, and Feistel ciphers such as DES also encrypt and decrypt on the same circuit. What keeps such ciphers secure is the key.
@@ -158,6 +235,11 @@ Atbash, ROT13 and ROT47 have no key. Anyone who knows the method can undo them w
 - P. Diaconis, R. L. Graham, W. M. Kantor, "The Mathematics of Perfect Shuffles", Advances in Applied Mathematics 4, 175–196, 1983 — [doi.org](https://doi.org/10.1016/0196-8858(83)90009-X)
 - Faculty of Theology and Religion, University of Oxford, "Crack the Code! Learn about the atbash cipher and how to crack it!" — [theology.web.ox.ac.uk](https://theology.web.ox.ac.uk/node/330161)
 - The Jewish Chronicle, "Atbash" — [thejc.com](https://www.thejc.com/judaism/jewish-words/atbash-a9riafa5)
+- Crypto Museum, "Enigma wiring" — [cryptomuseum.com](https://www.cryptomuseum.com/crypto/enigma/wiring.htm)
+- Crypto Museum, "How does an Enigma machine work?" — [cryptomuseum.com](https://www.cryptomuseum.com/crypto/enigma/working.htm)
+- P. S. L. M. Barreto, V. Rijmen, "The Khazad Legacy-Level Block Cipher", NESSIE, 2000 (revised 2001) — [web.archive.org](https://web.archive.org/web/20170112172733/http://www.larc.usp.br:80/~pbarreto/KhazadPage.html)
+- J. Borghoff et al., "PRINCE – A Low-latency Block Cipher for Pervasive Computing Applications", ASIACRYPT 2012 — [iacr.org](https://www.iacr.org/archive/asiacrypt2012/76580203/76580203.pdf)
+- Unicode, "UAX #29: Unicode Text Segmentation" (Unicode 18.0.0) — [unicode.org](https://www.unicode.org/reports/tr29/tr29-49.html)
 
 ---
 
@@ -173,6 +255,10 @@ Atbash, ROT13 and ROT47 have no key. Anyone who knows the method can undo them w
 - History and religious history classes: introduce Atbash, which comes from a substitution of Hebrew letters, and the "Sheshach" example in Jeremiah
 - Card tricks and magic: talk about the difference between pair swap, which returns after two applications, and the perfect shuffle (out-shuffle), which takes 8 shuffles with 52 cards
 - Electronics and logic circuits: check with 8-bit binary that passing through NOT twice gives back the original bits
+- Group theory and combinatorics classes: show permutations split into cycles, orders and the number of involutions (532,985,208,200,576 for 26 letters) concretely with the checker and the order demo
+- History (World War II) and history of cryptography classes: check with the simplified version that the Enigma reflector made encryption and decryption the same operation while also creating the weakness that no letter is encrypted into itself
+- Security training: show with live numbers that reusing a key in a stream cipher or one-time pad leaks the XOR of the plaintexts from the XOR of the ciphertexts
+- Implementing and testing string processing: check with emoji and Hangul jamo that results change depending on whether "one character" is counted by code unit, code point or grapheme
 - Explaining text masking: explain that ROT13 only hides spoilers and that anyone who knows the method can read it
 - Combining with other tools: after checking the property here, handle long texts with ROT13 Encoder, QuickROT47 or Columnar CipherLab
 
@@ -196,7 +282,10 @@ This tool is for learning. Please do not misuse it.
 - Atbash, ROT13 and ROT47 are transforms without a key and are not ciphers that keep secrets
 - String reversal and pair swap work by code point. Emoji made of several code points look broken after the first application
 - Bitwise NOT handles only 8 bits. Characters are limited to one character from U+0000 to U+00FF
-- Input fields accept up to 200 characters
+- Input fields accept up to 200 characters (40 for the XOR plaintexts)
+- The Enigma demo is a simplified version with only one rotor and reflector B. It does not reproduce the three rotors, ring settings, plugboard or rotor stepping of the real machine
+- "Random involution" in the checker makes examples for learning and does not pick uniformly from all involutions
+- Grapheme boundaries follow the browser's Intl.Segmenter. In browsers without it, the grapheme unit cannot be chosen
 
 ---
 
@@ -208,8 +297,9 @@ npm test
 
 - Runs on the standard Node.js 22+ test runner (`node:test`) with no dependencies. GitHub Actions runs it on every push and pull request
 - Core: Atbash, ROT13, ROT47, string reversal and pair swap return to the original after two applications (ASCII, Japanese, emoji, combining characters), NOT for all 256 values, transposition, input parsing, every Feistel step (256 values × 46 key sets) and the half round for all 4096 combinations
+- Core added in the second release: orders (25 Caesar shifts, shuffles compared with a separate reference), the checker and its examples, the number of involutions (full enumeration up to 7 letters), the simplified Enigma (all 26 positions), units of reversal, XOR and key reuse, and the self-inverse Hill matrix
 - index.html CSP, ARIA (tabs and accordions), labels and agreement with the dictionary, the Japanese and English dictionaries, language selection, color contrast (text 4.5:1 and borders 3:1 or more, in light and dark), and line length
-- The tables and numbers in both READMEs (the transform examples, the Feistel step table, 50 of 4096, the number of perfect shuffles), the directory tree and the images are also checked against the implementation
+- The tables and numbers in both READMEs (the transform examples, the order table, the checker table, the Feistel step table, the Enigma example, 50 of 4096, the number of perfect shuffles, the number of involutions), the directory tree and the images are also checked against the implementation
 
 ---
 
@@ -225,20 +315,25 @@ involution-studio/
 │   │   ├── screenshot.png             # Step-by-step Feistel structure
 │   │   ├── screenshot2.png            # Atbash
 │   │   ├── screenshot3.png            # String reversal (dark)
-│   │   └── screenshot4.png            # Bitwise NOT
+│   │   ├── screenshot4.png            # Bitwise NOT
+│   │   ├── screenshot5.png            # Involution checker
+│   │   └── screenshot6.png            # The Enigma reflector (dark)
 │   ├── screenshot.png                 # Screenshot for the Japanese README (Feistel)
 │   ├── screenshot2.png                # Screenshot for the Japanese README (Atbash)
 │   ├── screenshot3.png                # Screenshot for the Japanese README (string reversal, dark)
-│   └── screenshot4.png                # Screenshot for the Japanese README (bitwise NOT)
+│   ├── screenshot4.png                # Screenshot for the Japanese README (bitwise NOT)
+│   ├── screenshot5.png                # Screenshot for the Japanese README (involution checker)
+│   └── screenshot6.png                # Screenshot for the Japanese README (Enigma reflector, dark)
 ├── js/                                # Scripts
 │   ├── i18n.js                        # Language selection and replacing the text in HTML
-│   ├── involution-core.js             # Core (transforms, input parsing, Feistel steps)
+│   ├── involution-core.js             # Core (transforms, Feistel, order, checker, Enigma, XOR)
 │   ├── messages.js                    # Text on the page (Japanese and English)
 │   ├── theme-init.js                  # Applies the saved theme before drawing
 │   └── theme.js                       # Light and dark switching
 ├── test/                              # Automated tests (node:test)
 │   ├── contrast.test.js               # Color contrast and control sizes
 │   ├── core.test.js                   # Core (round trips, known answers, Feistel)
+│   ├── explore.test.js                # Core (order, checker, Enigma, reversal units, XOR)
 │   ├── format.test.js                 # Line length and line endings
 │   ├── html.test.js                   # CSP, ARIA, labels and agreement with the dictionary
 │   ├── i18n.test.js                   # Language selection

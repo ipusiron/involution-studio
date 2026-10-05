@@ -138,6 +138,244 @@
     return { steps, cipher, plain: (L << 4) | R };
   }
 
+  // ===== 何回で元に戻るか（位数） =====
+
+  // シーザー: 英字を k ずらす（大文字・小文字を保ち、英字以外はそのまま）
+  function caesar(text, k) {
+    const s = ((k % 26) + 26) % 26;
+    return codePoints(text).map((ch) => {
+      const c = ch.codePointAt(0);
+      if (c >= 65 && c <= 90) return String.fromCharCode(65 + ((c - 65 + s) % 26));
+      if (c >= 97 && c <= 122) return String.fromCharCode(97 + ((c - 97 + s) % 26));
+      return ch;
+    }).join('');
+  }
+
+  // パーフェクトシャッフル: 文字を札とみなし、半分に分けて1枚ずつ交互に重ねる（偶数個のときだけ）
+  // out は上の札が上に残る（アウトシャッフル）、そうでなければ2枚目に入る（インシャッフル）
+  function shuffle(text, out) {
+    const cp = codePoints(text);
+    const h = cp.length / 2;
+    return cp.slice(0, h).flatMap((x, i) => (out ? [x, cp[h + i]] : [cp[h + i], x])).join('');
+  }
+
+  const ORDER_KINDS = ['caesar', 'rot13', 'atbash', 'reverse', 'pairs', 'outShuffle', 'inShuffle'];
+
+  // 種類ごとの変換（k はシーザーのずらし幅）
+  function orderTransform(kind, k) {
+    return {
+      caesar: (s) => caesar(s, k),
+      rot13,
+      atbash: (s) => atbash(s).output,
+      reverse,
+      pairs: (s) => swapPairs(s).output,
+      outShuffle: (s) => shuffle(s, true),
+      inShuffle: (s) => shuffle(s, false)
+    }[kind];
+  }
+
+  // 位数の入力の確認。戻り値は null（よい）か、誤りの種類（empty・odd）
+  function orderInputError(kind, text) {
+    const n = codePoints(text).length;
+    if (n === 0) return 'empty';
+    if ((kind === 'outShuffle' || kind === 'inShuffle') && n % 2) return 'odd';
+    return null;
+  }
+
+  // 元の文字列に戻るまで適用を繰り返す。states[0] が入力。limit 回で戻らなければ order は null
+  function orderOf(apply, text, limit = 1000) {
+    const states = [text];
+    let cur = text;
+    for (let n = 1; n <= limit; n++) {
+      cur = apply(cur);
+      states.push(cur);
+      if (cur === text) return { order: n, states };
+    }
+    return { order: null, states };
+  }
+
+  // ===== 26文字の換字表の判定 =====
+
+  const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const toMap = (s) => [...s].map((c) => c.charCodeAt(0) - 65);
+  const mapToString = (m) => m.map((i) => ALPHABET[i]).join('');
+
+  // 換字表（A〜Z の行き先を順に並べた26文字）を読む。小文字と空白は許す
+  // 戻り値は { ok: true, map } か { ok: false, error }（error は length・letters・duplicate。duplicate は missing も返す）
+  function parseAlphabet(raw) {
+    const s = String(raw).toUpperCase().replace(/\s+/g, '');
+    if (!/^[A-Z]*$/.test(s)) return { ok: false, error: 'letters' };
+    if (s.length !== 26) return { ok: false, error: 'length', length: s.length };
+    const map = toMap(s);
+    const missing = [...ALPHABET].filter((c) => !s.includes(c));
+    return missing.length ? { ok: false, error: 'duplicate', missing } : { ok: true, map };
+  }
+
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+
+  // 置換を巡回に分ける。インボリューション＝長さ3以上の巡回がない（すべて不動点か2文字の組）
+  function analyzePermutation(map) {
+    const seen = new Array(map.length).fill(false);
+    const cycles = [];
+    for (let i = 0; i < map.length; i++) {
+      if (seen[i]) continue;
+      const cycle = [];
+      for (let j = i; !seen[j]; j = map[j]) {
+        seen[j] = true;
+        cycle.push(ALPHABET[j]);
+      }
+      cycles.push(cycle);
+    }
+    const order = cycles.reduce((acc, c) => (acc / gcd(acc, c.length)) * c.length, 1);
+    return {
+      involution: cycles.every((c) => c.length <= 2),
+      fixed: cycles.filter((c) => c.length === 1).map((c) => c[0]),
+      pairs: cycles.filter((c) => c.length === 2),
+      longer: cycles.filter((c) => c.length > 2),
+      order
+    };
+  }
+
+  // 判定器のプリセット（A〜Z の行き先の26文字）
+  const ROTOR_I = 'EKMFLGDQVZNTOWYHXUSPAIBRCJ';
+  const UKW_B = 'YRUHQSLDPXNGOKMIEBFZCWVJAT';
+  const shiftAlphabet = (k) => mapToString([...ALPHABET].map((_, i) => (i + k) % 26));
+  // Beaufort（鍵の文字 k、c = k − p mod 26）
+  const beaufortAlphabet = (k) => mapToString([...ALPHABET].map((_, p) => (((k - p) % 26) + 26) % 26));
+  const PRESETS = {
+    atbash: () => mapToString([...ALPHABET].map((_, i) => 25 - i)),
+    rot13: () => shiftAlphabet(13),
+    caesar3: () => shiftAlphabet(3),
+    beaufortA: () => beaufortAlphabet(0),
+    beaufortB: () => beaufortAlphabet(1),
+    ukwB: () => UKW_B,
+    rotorI: () => ROTOR_I
+  };
+
+  // ランダムな対合（rand(n) は 0〜n−1 の整数を返す関数）。fixedPointFree なら13組、そうでなければ不動点を混ぜる
+  // 一様に選ぶものではない（学習用の例を作るだけ）
+  function randomInvolution(rand, fixedPointFree) {
+    const order = [...Array(26).keys()];
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = rand(i + 1);
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    const map = new Array(26);
+    let i = 0;
+    while (i < 26) {
+      if (!fixedPointFree && (i === 25 || rand(4) === 0)) {
+        map[order[i]] = order[i];
+        i += 1;
+      } else {
+        map[order[i]] = order[i + 1];
+        map[order[i + 1]] = order[i];
+        i += 2;
+      }
+    }
+    return mapToString(map);
+  }
+
+  // n 個の元の上のインボリューションの数と、そのうち不動点のないものの数（BigInt）
+  function involutionCount(n) {
+    let [a, b] = [1n, 1n];
+    for (let m = 2; m <= n; m++) [a, b] = [b, b + BigInt(m - 1) * a];
+    return n === 0 ? 1n : b;
+  }
+
+  function fixedPointFreeCount(n) {
+    if (n % 2) return 0n;
+    let r = 1n;
+    for (let m = n - 1; m > 0; m -= 2) r *= BigInt(m);
+    return r;
+  }
+
+  // ===== エニグマの簡易版（ローターI＋反転円盤B） =====
+  // キーを押すとローターが1つ進み、そのあとで電流が ローター → 反転円盤 → ローター（逆向き）と通る
+  const ROTOR_MAP = toMap(ROTOR_I);
+  const ROTOR_INV = [];
+  ROTOR_MAP.forEach((v, i) => {
+    ROTOR_INV[v] = i;
+  });
+  const UKW_MAP = toMap(UKW_B);
+
+  // ローターの位置 p（0〜25）での26文字の対応
+  function enigmaMapAt(p) {
+    return [...Array(26).keys()].map((c) => {
+      let x = (ROTOR_MAP[(c + p) % 26] - p + 26) % 26;
+      x = UKW_MAP[x];
+      return (ROTOR_INV[(x + p) % 26] - p + 26) % 26;
+    });
+  }
+
+  // 開始位置 start から文字列を通す。英字だけを変え、そのたびにローターが進む（大文字・小文字は保つ）
+  function enigma(text, start) {
+    let p = start;
+    const output = codePoints(text).map((ch) => {
+      const c = ch.codePointAt(0);
+      const upper = c >= 65 && c <= 90;
+      const lower = c >= 97 && c <= 122;
+      if (!upper && !lower) return ch;
+      p = (p + 1) % 26;
+      const out = enigmaMapAt(p)[c - (upper ? 65 : 97)];
+      return String.fromCharCode(out + (upper ? 65 : 97));
+    }).join('');
+    return { output, end: p };
+  }
+
+  // ===== 反転の単位 =====
+  const segmenter = typeof Intl !== 'undefined' && Intl.Segmenter ? new Intl.Segmenter(undefined, { granularity: 'grapheme' }) : null;
+  const graphemes = (text) => (segmenter ? [...segmenter.segment(String(text))].map((s) => s.segment) : null);
+
+  // unit は codeUnit（UTF-16 のコード単位）・codePoint・grapheme（見た目の1文字）
+  function reverseBy(text, unit) {
+    if (unit === 'codeUnit') return String(text).split('').reverse().join('');
+    if (unit === 'grapheme') {
+      const g = graphemes(text);
+      return g ? g.reverse().join('') : null;
+    }
+    return reverse(text);
+  }
+
+  // 孤立したサロゲートを含まないか（正しい UTF-16 の文字列か）
+  function wellFormed(s) {
+    for (let i = 0; i < s.length; i++) {
+      const c = s.charCodeAt(i);
+      if (c >= 0xd800 && c <= 0xdbff) {
+        const d = s.charCodeAt(i + 1);
+        if (!(d >= 0xdc00 && d <= 0xdfff)) return false;
+        i++;
+      } else if (c >= 0xdc00 && c <= 0xdfff) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // ===== XOR（ストリーム暗号） =====
+  const KEY_BYTES = 256;
+  const utf8 = (text) => new TextEncoder().encode(String(text));
+  const toHex = (bytes) => Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join(' ');
+
+  function xorBytes(a, b) {
+    const n = Math.min(a.length, b.length);
+    const out = new Uint8Array(n);
+    for (let i = 0; i < n; i++) out[i] = a[i] ^ b[i];
+    return out;
+  }
+
+  // 同じ鍵で2つの平文を暗号化したとき、暗号文どうしの XOR は平文どうしの XOR と同じになる（鍵が消える）
+  function twoTimePad(p1, p2, key) {
+    const n = Math.min(p1.length, p2.length, key.length);
+    const c1 = xorBytes(p1.subarray(0, n), key);
+    const c2 = xorBytes(p2.subarray(0, n), key);
+    return { length: n, c1, c2, cx: xorBytes(c1, c2), px: xorBytes(p1.subarray(0, n), p2.subarray(0, n)) };
+  }
+
+  // ===== 自己逆の Hill 行列の例（A² ≡ I mod 26） =====
+  const HILL_INVOLUTORY = [[3, 2], [9, 23]];
+  const mulMod = (X, Y, m) => X.map((row) => Y[0].map((_, j) => row.reduce((s, v, k) => s + v * Y[k][j], 0) % m));
+  const det2 = (X, m) => (((X[0][0] * X[1][1] - X[0][1] * X[1][0]) % m) + m) % m;
+
   globalThis.InvolutionCore = {
     codePoints,
     atbash,
@@ -156,6 +394,35 @@
     feistelF,
     feistelRound,
     feistelHalf,
-    feistelSteps
+    feistelSteps,
+    caesar,
+    shuffle,
+    ORDER_KINDS,
+    orderTransform,
+    orderInputError,
+    orderOf,
+    ALPHABET,
+    mapToString,
+    parseAlphabet,
+    analyzePermutation,
+    ROTOR_I,
+    UKW_B,
+    PRESETS,
+    randomInvolution,
+    involutionCount,
+    fixedPointFreeCount,
+    enigmaMapAt,
+    enigma,
+    graphemes,
+    reverseBy,
+    wellFormed,
+    KEY_BYTES,
+    utf8,
+    toHex,
+    xorBytes,
+    twoTimePad,
+    HILL_INVOLUTORY,
+    mulMod,
+    det2
   };
 })();

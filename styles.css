@@ -351,6 +351,47 @@ fieldset.keys {
   filter: brightness(1.1);
 }
 
+.sample-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.btn.small { font-size: 14px; }
+
+.detail { margin: 10px 0 0; }
+
+.detail dt {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.detail dd {
+  min-height: 1.7em;
+  margin: 2px 0 0;
+}
+
+.wrap { overflow-wrap: anywhere; }
+
+.detail + .field-label {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.pair-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 .result-label, .table-label, .matrix-label, .progress {
   margin: 8px 0 4px;
   color: var(--muted);
