@@ -268,3 +268,18 @@ test('画像: 参照はすべて実在する。スクリーンショットは日
   const files = (dir) => fs.readdirSync(path.join(ROOT, dir)).filter((f) => /\.(png|jpg)$/.test(f)).map((f) => `${dir}/${f}`);
   for (const f of [...files('assets'), ...files('assets/en')]) assert.ok(used.has(f), `参照していない画像: ${f}`);
 });
+
+test('ユースケースの「このツールならではの使い方」の値は計算部と同じ（日英）', () => {
+  const ja = DOCS.ja.text, en = DOCS.en.text;
+  assert.equal(C.rot13('HELLO'), 'URYYB');
+  assert.equal(C.rot13(C.rot13('HELLO')), 'HELLO');
+  assert.equal(C.orderOf((t) => C.rot13(t), 'HELLO').order, 2);
+  const deck = Array.from({ length: 52 }, (_, i) => String.fromCodePoint(0x100 + i)).join('');
+  assert.equal(C.orderOf((t) => C.shuffle(t, true), deck).order, 8);
+  assert.equal((2 ** 8) % 51, 1);
+  assert.ok(ja.includes('HELLOをURYYBに') && en.includes('HELLO into URYYB'));
+  assert.ok(ja.includes('8回で元の並びに戻る') && en.includes('returns to the original order after 8'));
+  const p1 = C.utf8('HELLO'), p2 = C.utf8('WORLD'), key = C.utf8('ABCDE');
+  const r = C.twoTimePad(p1, p2, key);
+  assert.equal(C.toHex(C.xorBytes(r.c1, r.c2)), C.toHex(C.xorBytes(p1, p2)));
+});

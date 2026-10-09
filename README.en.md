@@ -252,6 +252,12 @@ Atbash, ROT13 and ROT47 have no key. Anyone who knows the method can undo them w
 
 ## 🎯 Use cases
 
+Ways of using this tool in particular
+
+- Confirming that applying it twice returns the original, so it is its own inverse (involution and function classes): ROT13 turns HELLO into URYYB, and applying it once more returns HELLO. Counted in the order demo, the number of applications to return is 2. You can confirm that encryption and decryption are the same procedure (its own inverse, an involution) by how it returns on the second application
+- Confirming that a perfect shuffle of 52 cards returns after 8 (period and group-order classes): running an out-shuffle of 52 cards through the order demo returns to the original order after 8. This is the order of 2 in arithmetic modulo 51, the same as 2 to the 8th leaving a remainder of 1 when divided by 51. You can confirm how many shuffles a card trick takes to return, tied to modular arithmetic
+- Confirming that reusing a key leaks the difference through XOR (one-time pad classes): encrypting two plaintexts with the same key by XOR makes the XOR of the two ciphertexts equal to the XOR of the two plaintexts, because the key cancels out. You can show with numbers on the spot why a one-time pad key must never be reused
+
 - Math classes and self-study: check function composition, inverse functions and the identity map by hand with strings and matrices. The phrase "its own inverse" connects with a screen that returns to the original on the second application
 - Computing and programming classes: show with emoji reversal that "one character" differs between code points and what you see
 - Introduction to cryptography: follow, from Atbash and ROT13 to the Feistel structure, how encryption and decryption become the same procedure
