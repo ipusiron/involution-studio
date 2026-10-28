@@ -311,9 +311,9 @@ npm test
 ```
 
 - Runs on the standard Node.js 22+ test runner (`node:test`) with no dependencies. GitHub Actions runs it on every push and pull request
-- Core: Atbash, ROT13, ROT47, string reversal and pair swap return to the original after two applications (ASCII, Japanese, emoji, combining characters), NOT for all 256 values, transposition, input parsing, every Feistel step (256 values × 46 key sets) and the half round for all 4096 combinations
-- Core added in the second release: orders (25 Caesar shifts, shuffles compared with a separate reference), the checker and its examples, the number of involutions (full enumeration up to 7 letters), the simplified Enigma (all 26 positions), units of reversal, XOR and key reuse, and the self-inverse Hill matrix
-- Core added in the third release: conjugation (matching the Enigma at position A; fixed points and pairs unchanged under random rearrangements), shuffle cycles and the formula from the paper (2 to 52 cards), reversing 52 cards by 26 in-shuffles, and all 2×2 matrices (157,248 invertible, 736 self-inverse)
+- Core (transforms that undo themselves): Atbash, ROT13, ROT47, string reversal and pair swap return to the original after two applications (ASCII, Japanese, emoji, combining characters), NOT for all 256 values, transposition, input parsing, every Feistel step (256 values × 46 key sets) and the half round for all 4096 combinations
+- Core (orders, checking, counting): orders (25 Caesar shifts, shuffles compared with a separate reference), the checker and its examples, the number of involutions (full enumeration up to 7 letters), the simplified Enigma (all 26 positions), units of reversal, XOR and key reuse, and the self-inverse Hill matrix
+- Core (conjugation, shuffles, matrices): conjugation (matching the Enigma at position A; fixed points and pairs unchanged under random rearrangements), shuffle cycles and the formula from the paper (2 to 52 cards), reversing 52 cards by 26 in-shuffles, and all 2×2 matrices (157,248 invertible, 736 self-inverse)
 - index.html CSP, ARIA (tabs and accordions), labels and agreement with the dictionary, the Japanese and English dictionaries, language selection, color contrast (text 4.5:1 and borders 3:1 or more, in light and dark), and line length
 - The tables and numbers in both READMEs (the transform examples, the order table, the checker table, the Feistel step table, the Enigma example, 50 of 4096, the number of perfect shuffles, the number of involutions), the directory tree and the images are also checked against the implementation
 
